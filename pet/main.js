@@ -470,13 +470,17 @@ function openSettings() {
     return;
   }
   settingsWindow = new BrowserWindow({
-    width: 500,
-    height: 600,
+    width: 520,
+    height: 640,
     title: 'CodePet 码宠 · 设置',
     resizable: false,
     minimizable: false,
     fullscreenable: false,
     autoHideMenuBar: true,
+    // 透明无边框：实现 Watt Toolkit 式半透明毛玻璃面板
+    transparent: true,
+    frame: false,
+    backgroundColor: '#00000000',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -809,6 +813,79 @@ ipcMain.handle('get-window-position', (event) => {
 ipcMain.handle('get-display-bounds', (event) => {
   const targetWindow = BrowserWindow.fromWebContents(event.sender);
   return getWindowDisplay(targetWindow).bounds;
+});
+
+// ---------------------------------------------------------------- 拖动（主进程光标轮询）
+// 渲染层仅负责 mousedown/mouseup 通知；窗口跟随移动由主进程以 16ms 间隔
+// 轮询系统光标位置完成。完全不依赖窗口鼠标事件送达，小窗口拖出/事件丢失/
+// 状态残留导致的乱跑问题在此根除；光标连续约 800ms 不动即判定已松开自动停止。
+let dragTimer = null;
+let dragStartCursor = null;
+let dragStartWindowPos = null;
+let dragLastCursor = null;
+let dragStillFrames = 0;
+const DRAG_IDLE_FRAMES = 50; // 50 帧 × 16ms ≈ 800ms
+
+function stopWindowDrag() {
+  if (dragTimer) {
+    clearInterval(dragTimer);
+    dragTimer = null;
+  }
+  dragStartCursor = null;
+  dragStartWindowPos = null;
+  dragLastCursor = null;
+  dragStillFrames = 0;
+}
+
+function startWindowDrag(targetWindow, cursorX, cursorY) {
+  if (!targetWindow || targetWindow.isDestroyed()) return;
+  stopWindowDrag();
+  dragStartCursor = { x: cursorX, y: cursorY };
+  dragStartWindowPos = targetWindow.getPosition();
+  dragLastCursor = { x: cursorX, y: cursorY };
+  dragStillFrames = 0;
+  dragTimer = setInterval(() => {
+    if (!targetWindow || targetWindow.isDestroyed()) {
+      stopWindowDrag();
+      return;
+    }
+    const cur = screen.getCursorScreenPoint();
+    if (cur.x === dragLastCursor.x && cur.y === dragLastCursor.y) {
+      dragStillFrames++;
+      if (dragStillFrames > DRAG_IDLE_FRAMES) {
+        stopWindowDrag(); // 光标停住：已松开
+        return;
+      }
+    } else {
+      dragStillFrames = 0;
+    }
+    dragLastCursor = { x: cur.x, y: cur.y };
+    const dx = cur.x - dragStartCursor.x;
+    const dy = cur.y - dragStartCursor.y;
+    const safe = getSafeMascotWindowPosition(
+      targetWindow,
+      dragStartWindowPos[0] + dx,
+      dragStartWindowPos[1] + dy
+    );
+    targetWindow.setPosition(safe.x, safe.y);
+  }, 16);
+}
+
+ipcMain.on('pet:drag-start', (event, cx, cy) => {
+  const targetWindow = BrowserWindow.fromWebContents(event.sender);
+  if (!targetWindow || targetWindow.isDestroyed()) return;
+  const x = toFiniteInteger(cx);
+  const y = toFiniteInteger(cy);
+  if (x === null || y === null) return;
+  startWindowDrag(targetWindow, x, y);
+});
+
+ipcMain.on('pet:drag-end', () => {
+  stopWindowDrag();
+});
+
+app.on('will-quit', () => {
+  stopWindowDrag();
 });
 
 // CodePet 新增：设置面板 IPC

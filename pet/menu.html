@@ -11,13 +11,16 @@
       box-sizing: border-box;
     }
     body {
-      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
-      background: rgba(23, 26, 36, 0.96);
+      font-family: "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+      /* 与设置面板同款 Watt Toolkit 毛玻璃 */
+      background: rgba(28, 32, 46, 0.82);
+      -webkit-backdrop-filter: blur(30px) saturate(170%);
+      backdrop-filter: blur(30px) saturate(170%);
       color: #e8eaf0;
-      border-radius: 14px;
+      border-radius: 12px;
       overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.11);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
       padding: 6px;
       user-select: none;
     }
@@ -25,7 +28,9 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 8px 10px 8px;
+      padding: 8px 10px 7px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+      margin-bottom: 5px;
     }
     .head .logo {
       width: 26px;
@@ -35,32 +40,34 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 14px;
+      font-size: 13px;
+      box-shadow: 0 3px 9px rgba(106, 141, 255, 0.35);
     }
     .head .name {
-      font-size: 13px;
+      font-size: 12.5px;
       font-weight: 700;
       letter-spacing: 0.5px;
+      color: #fff;
     }
     .item {
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 10px 12px;
-      border-radius: 9px;
-      font-size: 13px;
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 12.5px;
       cursor: pointer;
-      transition: background 0.15s;
+      transition: background 0.15s, color 0.15s;
       color: #d7dceb;
     }
     .item:hover {
-      background: rgba(106, 141, 255, 0.16);
+      background: rgba(106, 141, 255, 0.18);
       color: #fff;
     }
     .item .ico {
-      width: 18px;
+      width: 17px;
       text-align: center;
-      font-size: 13px;
+      font-size: 12.5px;
     }
     .sep {
       height: 1px;
@@ -68,7 +75,7 @@
       margin: 5px 4px;
     }
     .item.danger:hover {
-      background: rgba(255, 90, 90, 0.16);
+      background: rgba(255, 90, 90, 0.18);
       color: #ff9a9a;
     }
   </style>

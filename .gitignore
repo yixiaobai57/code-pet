@@ -22,3 +22,6 @@ Thumbs.db
 
 # 临时
 *.tmp
+
+# 本地验证截图与产物
+pet/ui-check/

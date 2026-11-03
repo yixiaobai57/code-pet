@@ -16,14 +16,12 @@
       height: 100vh;
       background: transparent;
       overflow: hidden;
+      /* 拖动由主进程轮询光标实现（pet:drag-start/pet:drag-end），
+         窗口本体不使用 app-region drag，保证右键菜单事件不被吞。 */
       -webkit-app-region: no-drag;
       user-select: none;
       cursor: grab;
       pointer-events: auto;
-    }
-
-    body.dragging {
-      cursor: grabbing;
     }
 
     .container {
@@ -31,6 +29,7 @@
       height: 100vh;
       position: relative;
       pointer-events: auto;
+      -webkit-app-region: no-drag;
     }
 
     .mascot {
@@ -44,6 +43,7 @@
       image-rendering: crisp-edges;
       transform-origin: center center;
       pointer-events: auto;
+      -webkit-app-region: no-drag;
     }
 
     .mascot.idle {
@@ -77,24 +77,11 @@
         width: 120,
         height: 84,
         alt: 'CodePet 猫猫'
-      },
-      penguin: {
-        runningSrc: 'assets/penguin_running.webp',
-        idleSrc: 'assets/penguin_idle.png',
-        width: 84,
-        height: 84,
-        alt: 'CodePet 企鹅'
       }
     };
     const mascotConfig = MASCOT_CONFIGS[mascotId] || MASCOT_CONFIGS.cat;
 
     let mode = 'idle';
-    let dragging = false;
-    let dragStartScreenX = 0;
-    let dragStartScreenY = 0;
-    let winStartX = 0;
-    let winStartY = 0;
-    let winStartReady = false;
 
     function updateImage() {
       const isRunning = mode === 'running';
@@ -103,11 +90,9 @@
       mascot.style.width = `${mascotConfig.width}px`;
       mascot.style.height = `${mascotConfig.height}px`;
       mascot.classList.toggle('idle', !isRunning);
-      mascot.classList.toggle('run-bounce', isRunning && !dragging);
-      // 非拖动时定位：以窗口中心为锚点
-      if (!dragging) {
-        mascot.style.transform = 'translate(-50%, -50%)';
-      }
+      mascot.classList.toggle('run-bounce', isRunning);
+      // 定位：以窗口中心为锚点（窗口本身由系统拖动，无需 JS 状态）
+      mascot.style.transform = 'translate(-50%, -50%)';
     }
 
     window.electronAPI.onSetMode((newMode) => {
@@ -117,37 +102,18 @@
 
     window.electronAPI.onSetSpeed(() => { /* 保留接口：速度由原地动画代替 */ });
 
-    // ---- 拖动：把猫猫拎到任意位置（屏幕绝对坐标，避免窗口内偏移误差） ----
+    // ---- 拖动：通知主进程开始/结束，跟随移动由主进程轮询系统光标完成 ----
+    // 渲染层不保存任何拖动状态；拖出窗口、事件丢失都不会导致残留或乱跑。
     const container = document.querySelector('.container');
 
-    container.addEventListener('mousedown', async (e) => {
+    container.addEventListener('mousedown', (e) => {
       if (e.button !== 0) return; // 仅左键拖动
-      const pos = await window.electronAPI.getWindowPosition().catch(() => ({ x: 0, y: 0 }));
-      winStartX = pos.x;
-      winStartY = pos.y;
-      winStartReady = true;
-      dragStartScreenX = e.screenX;
-      dragStartScreenY = e.screenY;
-      dragging = true;
-      document.body.classList.add('dragging');
-      mascot.classList.remove('run-bounce');
       e.preventDefault();
+      window.electronAPI.dragStart(e.screenX, e.screenY);
     });
-
-    window.addEventListener('mousemove', (e) => {
-      if (!dragging || !winStartReady) return;
-      const dx = e.screenX - dragStartScreenX;
-      const dy = e.screenY - dragStartScreenY;
-      window.electronAPI.setWindowPosition(winStartX + dx, winStartY + dy);
-    });
-
-    window.addEventListener('mouseup', () => {
-      if (!dragging) return;
-      dragging = false;
-      winStartReady = false;
-      document.body.classList.remove('dragging');
-      mascot.classList.toggle('run-bounce', mode === 'running');
-    });
+    window.addEventListener('mouseup', () => window.electronAPI.dragEnd());
+    // 兜底：窗口失焦（如弹出菜单）时也结束拖动
+    window.addEventListener('blur', () => window.electronAPI.dragEnd());
 
     // ---- 右键：弹出迷你菜单（与设置面板同风格） ----
     container.addEventListener('contextmenu', (e) => {

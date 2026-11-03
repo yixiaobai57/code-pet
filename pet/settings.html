@@ -10,155 +10,241 @@
       padding: 0;
       box-sizing: border-box;
     }
+    html {
+      background: transparent;
+    }
     body {
-      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
-      background: radial-gradient(1200px 500px at 20% -10%, rgba(106, 141, 255, 0.18), transparent 60%),
-                  radial-gradient(900px 420px at 110% 10%, rgba(138, 107, 255, 0.16), transparent 55%),
-                  linear-gradient(160deg, #141824 0%, #1c2130 100%);
-      color: #e8eaf0;
-      min-height: 100vh;
-      padding: 22px 26px;
+      font-family: "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+      /* Watt Toolkit 式毛玻璃：冷灰半透明面板 + 高饱和模糊层 */
+      background: rgba(30, 34, 48, 0.72);
+      -webkit-backdrop-filter: blur(34px) saturate(170%);
+      backdrop-filter: blur(34px) saturate(170%);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      border-radius: 14px;
+      box-shadow: 0 16px 56px rgba(0, 0, 0, 0.55);
+      color: #eef0f6;
+      height: 100vh;
+      overflow: hidden;
+      user-select: none;
     }
 
-    .head {
+    .app {
+      display: flex;
+      height: 100vh;
+    }
+
+    /* ---------- 左侧导航（Watt Toolkit 同款：暗色半透明 + 图标行） ---------- */
+    .nav {
+      width: 122px;
+      flex-shrink: 0;
+      background: rgba(8, 10, 16, 0.38);
+      border-right: 1px solid rgba(255, 255, 255, 0.07);
+      padding: 14px 9px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      -webkit-app-region: drag;
+    }
+    .nav-logo {
       display: flex;
       align-items: center;
-      gap: 14px;
-      margin-bottom: 6px;
+      gap: 8px;
+      padding: 4px 4px 15px;
     }
-    .head .logo {
-      width: 46px;
-      height: 46px;
-      border-radius: 14px;
+    .nav-logo .logo-badge {
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
       background: linear-gradient(135deg, #6a8dff, #8a6bff);
-      box-shadow: 0 6px 18px rgba(106, 141, 255, 0.35);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 24px;
+      font-size: 16px;
+      box-shadow: 0 4px 12px rgba(106, 141, 255, 0.35);
+      flex-shrink: 0;
     }
-    .head .titles h1 {
-      font-size: 19px;
+    .nav-logo b {
+      font-size: 13px;
       font-weight: 700;
-      letter-spacing: 1px;
+      letter-spacing: 0.5px;
+      color: #fff;
+      display: block;
+      line-height: 1.2;
     }
-    .head .titles .sub {
-      color: #8b93a8;
-      font-size: 12px;
+    .nav-logo small {
+      font-size: 9px;
+      color: rgba(220, 224, 238, 0.5);
+      display: block;
       margin-top: 2px;
     }
-
-    .card {
-      background: rgba(255, 255, 255, 0.055);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 16px;
-      padding: 16px 18px;
-      margin-top: 16px;
-      backdrop-filter: blur(6px);
-    }
-    .card-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: #aab4ff;
-      letter-spacing: 1px;
+    .nav-item {
       display: flex;
       align-items: center;
-      gap: 7px;
-      margin-bottom: 12px;
-    }
-
-    /* ---------- 计时器 ---------- */
-    .timer-grid {
-      display: flex;
-      gap: 12px;
-    }
-    .timer-box {
-      flex: 1;
-      background: rgba(0, 0, 0, 0.28);
-      border-radius: 12px;
-      padding: 12px 14px;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-    }
-    .timer-box .label {
-      font-size: 11px;
-      color: #8b93a8;
-      margin-bottom: 4px;
-    }
-    .timer-box .time {
-      font-size: 22px;
-      font-weight: 700;
-      font-variant-numeric: tabular-nums;
-      letter-spacing: 1px;
-      color: #e4e9ff;
-    }
-    .timer-box .hint {
-      font-size: 10px;
-      color: #6b7388;
-      margin-top: 4px;
-    }
-    .timer-btns {
-      display: flex;
       gap: 8px;
-      margin-top: 10px;
-    }
-    .timer-btns button {
-      flex: 1;
-      background: linear-gradient(135deg, rgba(106, 141, 255, 0.22), rgba(138, 107, 255, 0.22));
-      border: 1px solid rgba(106, 141, 255, 0.35);
-      color: #dfe6ff;
-      border-radius: 10px;
-      padding: 8px 0;
-      font-size: 12px;
-      font-weight: 600;
+      padding: 9px 10px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      color: rgba(226, 230, 242, 0.68);
       cursor: pointer;
-      transition: all 0.18s;
+      transition: background 0.15s, color 0.15s;
+      -webkit-app-region: no-drag;
+      white-space: nowrap;
     }
-    .timer-btns button:hover {
-      background: linear-gradient(135deg, rgba(106, 141, 255, 0.4), rgba(138, 107, 255, 0.4));
-      transform: translateY(-1px);
+    .nav-item .ico {
+      font-size: 13px;
+      width: 16px;
+      text-align: center;
+      flex-shrink: 0;
     }
-    .timer-btns button.secondary {
+    .nav-item:hover {
       background: rgba(255, 255, 255, 0.07);
-      border-color: rgba(255, 255, 255, 0.1);
-      color: #cfd6e6;
+      color: #fff;
     }
-    .timer-btns button.danger {
-      background: rgba(255, 90, 90, 0.12);
-      border-color: rgba(255, 90, 90, 0.3);
-      color: #ffb0b0;
+    .nav-item.active {
+      background: rgba(255, 255, 255, 0.13);
+      color: #fff;
+      font-weight: 600;
+    }
+    .nav-ver {
+      margin-top: auto;
+      padding: 10px 6px 2px;
+      font-size: 9.5px;
+      color: rgba(220, 224, 238, 0.38);
+      line-height: 1.6;
     }
 
-    /* ---------- 开关 ---------- */
+    /* ---------- 右侧内容 ---------- */
+    .content {
+      flex: 1;
+      min-width: 0;
+      padding: 16px 18px;
+      overflow-y: auto;
+    }
+    .content::-webkit-scrollbar {
+      width: 6px;
+    }
+    .content::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.14);
+      border-radius: 3px;
+    }
+    .section {
+      display: none;
+      animation: fade-in 0.18s ease;
+    }
+    .section.active {
+      display: block;
+    }
+    @keyframes fade-in {
+      from { opacity: 0.4; transform: translateY(3px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 设置页内标签内容：默认隐藏，active 显示 */
+    .tab-pane {
+      display: none;
+      animation: fade-in 0.18s ease;
+    }
+    .tab-pane.active {
+      display: block;
+    }
+
+    /* ---------- 顶部标签页（Watt Toolkit 同款：文字标签 + 底部指示） ---------- */
+    .tabs {
+      display: flex;
+      gap: 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      margin-bottom: 18px;
+      padding: 0 2px;
+    }
+    .tab {
+      position: relative;
+      padding: 4px 2px 11px;
+      font-size: 13px;
+      color: rgba(214, 219, 234, 0.62);
+      cursor: pointer;
+      transition: color 0.15s;
+      white-space: nowrap;
+    }
+    .tab:hover {
+      color: #fff;
+    }
+    .tab.active {
+      color: #fff;
+      font-weight: 600;
+    }
+    .tab.active::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -1px;
+      height: 2px;
+      border-radius: 2px;
+      background: linear-gradient(90deg, #6a8dff, #8a6bff);
+    }
+
+    /* ---------- 页面标题（Watt Toolkit 文字观感） ---------- */
+    .page-head h2 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.4px;
+    }
+    .page-head .sec-desc {
+      font-size: 11.5px;
+      color: rgba(196, 202, 220, 0.58);
+      margin-top: 4px;
+      margin-bottom: 13px;
+      line-height: 1.6;
+    }
+
+    /* ---------- 设置项列表（名称 + 说明 + 右侧“开/关”文字开关） ---------- */
+    .group {
+      border-radius: 12px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.045);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      padding: 2px 16px;
+      -webkit-backdrop-filter: blur(14px);
+      backdrop-filter: blur(14px);
+    }
     .item {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
-      padding: 10px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      gap: 14px;
+      padding: 13px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     }
     .item:last-child {
       border-bottom: none;
     }
     .item .info {
       flex: 1;
+      min-width: 0;
     }
     .item .name {
-      font-size: 14px;
+      font-size: 13.5px;
       font-weight: 600;
+      color: #f0f2f8;
+      letter-spacing: 0.2px;
     }
     .item .desc {
-      font-size: 12px;
-      color: #8b93a8;
-      margin-top: 3px;
-      line-height: 1.5;
+      font-size: 11.5px;
+      color: rgba(196, 202, 220, 0.6);
+      margin-top: 4px;
+      line-height: 1.55;
     }
+
+    /* Watt Toolkit 同款开关：文字 “开 / 关”，绿色开态 */
     .switch {
       position: relative;
-      width: 48px;
+      width: 52px;
       height: 27px;
       flex-shrink: 0;
       cursor: pointer;
+      border-radius: 7px;
+      overflow: hidden;
     }
     .switch input {
       opacity: 0;
@@ -168,166 +254,505 @@
     .slider {
       position: absolute;
       inset: 0;
-      background: #3a4054;
-      border-radius: 27px;
-      transition: 0.25s;
-      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.35);
-    }
-    .slider::before {
-      content: '';
-      position: absolute;
-      width: 21px;
-      height: 21px;
-      left: 3px;
-      top: 3px;
-      background: #fff;
-      border-radius: 50%;
-      transition: 0.25s;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: rgba(214, 219, 234, 0.75);
+      background: rgba(255, 255, 255, 0.13);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      border-radius: 7px;
+      transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+      font-family: inherit;
+      letter-spacing: 1px;
     }
     .switch input:checked + .slider {
-      background: linear-gradient(135deg, #6a8dff, #8a6bff);
-    }
-    .switch input:checked + .slider::before {
-      transform: translateX(21px);
+      background: linear-gradient(135deg, #2eb84a, #25963c);
+      border-color: rgba(46, 184, 74, 0.5);
+      color: #fff;
+      box-shadow: 0 2px 10px rgba(46, 184, 74, 0.35);
     }
 
     .tip {
-      margin-top: 12px;
-      padding: 10px 14px;
-      background: rgba(255, 200, 120, 0.08);
-      border: 1px solid rgba(255, 200, 120, 0.2);
-      border-radius: 12px;
-      color: #ffd9a0;
-      font-size: 12px;
-      line-height: 1.6;
+      margin-top: 13px;
+      padding: 10px 13px;
+      background: rgba(255, 200, 120, 0.07);
+      border: 1px solid rgba(255, 200, 120, 0.18);
+      border-radius: 10px;
+      color: rgba(255, 217, 160, 0.88);
+      font-size: 11.5px;
+      line-height: 1.65;
     }
     .tip code {
       background: rgba(0, 0, 0, 0.35);
       padding: 1px 6px;
       border-radius: 5px;
-      font-size: 11px;
+      font-size: 10.5px;
     }
 
-    .footer {
+    /* ---------- 码字计时器 ---------- */
+    .timer-grid {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 16px;
-      color: #6b7388;
-      font-size: 11px;
+      gap: 11px;
     }
-    .footer .btns {
+    .timer-box {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 13px;
+      -webkit-backdrop-filter: blur(14px);
+      backdrop-filter: blur(14px);
+    }
+    .timer-box .label {
+      font-size: 10.5px;
+      color: rgba(196, 202, 220, 0.58);
+      margin-bottom: 5px;
+    }
+    .timer-box .time {
+      font-size: 22px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 1px;
+      color: #fff;
+    }
+    .timer-box .hint {
+      font-size: 9.5px;
+      color: rgba(196, 202, 220, 0.5);
+      margin-top: 5px;
+      line-height: 1.5;
+    }
+    .timer-btns {
       display: flex;
       gap: 8px;
+      margin-top: 11px;
     }
-    .footer button {
-      background: rgba(255, 255, 255, 0.08);
-      color: #cfd6e6;
-      border: none;
-      border-radius: 9px;
-      padding: 7px 15px;
-      font-size: 12px;
+    .timer-btns button {
+      flex: 1;
+      border-radius: 8px;
+      padding: 8px 0;
+      font-size: 11.5px;
+      font-weight: 600;
       cursor: pointer;
-      transition: background 0.15s;
+      transition: filter 0.15s, transform 0.15s, background 0.15s;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #dfe3f0;
+      font-family: inherit;
     }
-    .footer button:hover {
+    .timer-btns button:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-1px);
+    }
+    .timer-btns button.primary {
+      background: linear-gradient(135deg, #6a8dff, #8a6bff);
+      border-color: transparent;
+      color: #fff;
+    }
+    .timer-btns button.primary:hover {
+      filter: brightness(1.12);
+    }
+    .timer-btns button.danger {
+      background: rgba(255, 90, 90, 0.13);
+      border-color: rgba(255, 90, 90, 0.28);
+      color: #ffb3b3;
+    }
+
+    /* ---------- 主页：桌宠状态 ---------- */
+    .home-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 16px;
+      -webkit-backdrop-filter: blur(14px);
+      backdrop-filter: blur(14px);
+    }
+    .home-pet {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 13px;
+    }
+    .home-pet .pet-avatar {
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+    .home-pet .pet-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .home-pet .pet-state {
+      font-size: 11px;
+      color: #7ee2a0;
+      margin-top: 3px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .home-pet .pet-state::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #34c759;
+      box-shadow: 0 0 6px rgba(52, 199, 89, 0.8);
+    }
+    .home-row {
+      font-size: 11.5px;
+      color: rgba(196, 202, 220, 0.6);
+      line-height: 1.7;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      padding-top: 11px;
+    }
+    .home-btns {
+      display: flex;
+      gap: 8px;
+      margin-top: 13px;
+    }
+    .home-btns button {
+      flex: 1;
+      border-radius: 8px;
+      padding: 9px 0;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: filter 0.15s, background 0.15s;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #dfe3f0;
+      font-family: inherit;
+    }
+    .home-btns button:hover {
       background: rgba(255, 255, 255, 0.15);
     }
-    .footer button.primary {
+    .home-btns button.primary {
       background: linear-gradient(135deg, #6a8dff, #8a6bff);
+      border-color: transparent;
       color: #fff;
+    }
+    .home-btns button.primary:hover {
+      filter: brightness(1.12);
+    }
+    .home-btns button.danger {
+      background: rgba(255, 90, 90, 0.13);
+      border-color: rgba(255, 90, 90, 0.28);
+      color: #ffb3b3;
+    }
+
+    /* ---------- 关于 ---------- */
+    .about-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 16px;
+      -webkit-backdrop-filter: blur(14px);
+      backdrop-filter: blur(14px);
+    }
+    .about-card .about-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .about-card .about-row {
+      font-size: 11.5px;
+      color: rgba(196, 202, 220, 0.62);
+      margin-top: 9px;
+      line-height: 1.75;
+    }
+    .about-card .about-row b {
+      color: #cfd6ff;
       font-weight: 600;
     }
-    .footer button.primary:hover {
-      filter: brightness(1.1);
+    .about-btns {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .about-btns button {
+      flex: 1;
+      border-radius: 8px;
+      padding: 9px 0;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: filter 0.15s, background 0.15s;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #dfe3f0;
+      font-family: inherit;
+    }
+    .about-btns button:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+    .about-btns button.primary {
+      background: linear-gradient(135deg, #6a8dff, #8a6bff);
+      border-color: transparent;
+      color: #fff;
+    }
+    .about-btns button.primary:hover {
+      filter: brightness(1.12);
+    }
+
+    /* 界面设置 / 插件设置说明卡片 */
+    .info-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 11.5px;
+      color: rgba(196, 202, 220, 0.68);
+      line-height: 1.8;
+      -webkit-backdrop-filter: blur(14px);
+      backdrop-filter: blur(14px);
+    }
+    .info-card b {
+      color: #e6e9f4;
+      font-weight: 600;
+    }
+    .info-card .hl {
+      color: #cfd6ff;
+    }
+    .info-btns {
+      margin-top: 13px;
+    }
+    .info-btns button {
+      border-radius: 8px;
+      padding: 9px 0;
+      width: 100%;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: filter 0.15s, background 0.15s;
+      background: linear-gradient(135deg, #6a8dff, #8a6bff);
+      border-color: transparent;
+      color: #fff;
+      font-family: inherit;
+    }
+    .info-btns button:hover {
+      filter: brightness(1.12);
     }
   </style>
 </head>
 <body>
-  <div class="head">
-    <span class="logo">🐋</span>
-    <div class="titles">
-      <h1>CodePet 码宠</h1>
-      <div class="sub">写代码的陪伴 AI · 设置面板</div>
-    </div>
-  </div>
-
-  <!-- 码字计时器 -->
-  <div class="card">
-    <div class="card-title">⏱️ 码字计时器</div>
-    <div class="timer-grid">
-      <div class="timer-box">
-        <div class="label">自动 · 写代码时长</div>
-        <div class="time" id="t-auto">00:00:00</div>
-        <div class="hint">检测到 VSCode 写代码时自动累计</div>
+  <div class="app">
+    <!-- 左侧导航 -->
+    <aside class="nav">
+      <div class="nav-logo">
+        <span class="logo-badge">🐋</span>
+        <div>
+          <b>CodePet</b>
+          <small>写代码的陪伴 AI</small>
+        </div>
       </div>
-      <div class="timer-box">
-        <div class="label">手动 · 本次计时</div>
-        <div class="time" id="t-manual">00:00:00</div>
-        <div class="hint" id="t-manual-hint">未开始</div>
-      </div>
-    </div>
-    <div class="timer-btns">
-      <button id="btn-start">▶ 开始</button>
-      <button class="secondary" id="btn-pause">⏸ 暂停</button>
-      <button class="danger" id="btn-reset">↺ 重置</button>
-    </div>
-  </div>
+      <div class="nav-item active" data-target="sec-home"><span class="ico">🏠</span>主页</div>
+      <div class="nav-item" data-target="sec-timer"><span class="ico">⏱️</span>计时器</div>
+      <div class="nav-item" data-target="sec-settings"><span class="ico">⚙️</span>设置</div>
+      <div class="nav-ver">v0.2.0<br>纯本地 · 不联网</div>
+    </aside>
 
-  <!-- 系统开关 -->
-  <div class="card">
-    <div class="card-title">⚙️ 写代码帮手（系统开关）</div>
+    <!-- 右侧内容 -->
+    <main class="content">
+      <!-- 主页 -->
+      <section class="section active" id="sec-home">
+        <div class="page-head">
+          <h2>主页</h2>
+          <p class="sec-desc">CodePet 码宠 · 你的写代码陪伴 AI</p>
+        </div>
+        <div class="home-card">
+          <div class="home-pet">
+            <div class="pet-avatar">🐱</div>
+            <div>
+              <div class="pet-name">猫猫</div>
+              <div class="pet-state">运行中</div>
+            </div>
+          </div>
+          <div class="home-row">
+            当前桌宠：<b style="color:#e6e9f4">猫猫</b>（透明置顶 · 跟随你的代码状态）
+            <br>VSCode 注释规则引擎：<b style="color:#e6e9f4">29 类 C 语言语法</b> · 自动讲解
+            <br>系统开关（AutoHotkey）：<b style="color:#e6e9f4">3 项</b>，见「设置」
+          </div>
+          <div class="home-btns">
+            <button class="primary" id="btn-restart-home">🔄 重启桌宠</button>
+            <button class="danger" id="btn-quit">✕ 退出</button>
+          </div>
+        </div>
+      </section>
 
-    <div class="item">
-      <div class="info">
-        <div class="name">中英文符号开关</div>
-        <div class="desc">开启后，中文输入法下输入 , . ; ( ) 等也强制输出英文标点<br>再也不会出现中文逗号混进代码的报错</div>
-      </div>
-      <label class="switch">
-        <input type="checkbox" id="sw-symbol">
-        <span class="slider"></span>
-      </label>
-    </div>
+      <!-- 码字计时器 -->
+      <section class="section" id="sec-timer">
+        <div class="page-head">
+          <h2>码字计时器</h2>
+          <p class="sec-desc">记录你写代码的时长，数据保存在本机，重启不丢</p>
+        </div>
+        <div class="timer-grid">
+          <div class="timer-box">
+            <div class="label">自动 · 写代码时长</div>
+            <div class="time" id="t-auto">00:00:00</div>
+            <div class="hint">检测到 VSCode 写代码时自动累计</div>
+          </div>
+          <div class="timer-box">
+            <div class="label">手动 · 本次计时</div>
+            <div class="time" id="t-manual">00:00:00</div>
+            <div class="hint" id="t-manual-hint">未开始</div>
+          </div>
+        </div>
+        <div class="timer-btns">
+          <button class="primary" id="btn-start">▶ 开始</button>
+          <button id="btn-pause">⏸ 暂停</button>
+          <button class="danger" id="btn-reset">↺ 重置</button>
+        </div>
+      </section>
 
-    <div class="item">
-      <div class="info">
-        <div class="name">Shift 切换中英文输入</div>
-        <div class="desc">单击 Shift 快速切换中/英文输入法<br>长按或 Shift+字母 不受影响</div>
-      </div>
-      <label class="switch">
-        <input type="checkbox" id="sw-shiftIME">
-        <span class="slider"></span>
-      </label>
-    </div>
+      <!-- 设置（内部顶部标签页） -->
+      <section class="section" id="sec-settings">
+        <div class="tabs">
+          <div class="tab active" data-tab="tab-general">通用设置</div>
+          <div class="tab" data-tab="tab-ui">界面设置</div>
+          <div class="tab" data-tab="tab-plugin">插件设置</div>
+          <div class="tab" data-tab="tab-about">关于</div>
+        </div>
 
-    <div class="item">
-      <div class="info">
-        <div class="name">禁用 Insert 改写模式</div>
-        <div class="desc">防止误按 Insert 进入改写模式，把刚写的代码悄悄覆盖掉</div>
-      </div>
-      <label class="switch">
-        <input type="checkbox" id="sw-insertOff">
-        <span class="slider"></span>
-      </label>
-    </div>
-  </div>
+        <!-- 通用设置 -->
+        <div class="tab-pane active" id="tab-general">
+          <div class="page-head">
+            <h2>通用设置</h2>
+            <p class="sec-desc">写代码帮手 · 三个系统开关（AutoHotkey），仅在开启时生效</p>
+          </div>
+          <div class="group">
+            <div class="item">
+              <div class="info">
+                <div class="name">中英文符号开关</div>
+                <div class="desc">中文输入法下输入 , . ; ( ) 等也强制输出英文标点<br>再也不会出现中文逗号混进代码的报错</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="sw-symbol">
+                <span class="slider">关</span>
+              </label>
+            </div>
+            <div class="item">
+              <div class="info">
+                <div class="name">Shift 切换中英文输入</div>
+                <div class="desc">单击 Shift 快速切换中/英文输入法<br>长按或 Shift+字母 不受影响</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="sw-shiftIME">
+                <span class="slider">关</span>
+              </label>
+            </div>
+            <div class="item">
+              <div class="info">
+                <div class="name">禁用 Insert 改写模式</div>
+                <div class="desc">防止误按 Insert 进入改写模式，把刚写的代码悄悄覆盖掉</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="sw-insertOff">
+                <span class="slider">关</span>
+              </label>
+            </div>
+          </div>
+          <div class="tip">
+            💡 这三个开关由 AutoHotkey 脚本实现（内置 <b>code-switches.ahk</b>）。
+            首次使用不生效时，请先安装 AutoHotkey v2：
+            <code>winget install AutoHotkey.AutoHotkey</code>
+          </div>
+        </div>
 
-  <div class="tip">
-    💡 这三个开关由 AutoHotkey 脚本实现（本项目已内置 <b>code-switches.ahk</b>），
-    仅在你开启时生效。首次使用如果开关不生效，请先安装 AutoHotkey v2：
-    <code>winget install AutoHotkey.AutoHotkey</code>
-  </div>
+        <!-- 界面设置 -->
+        <div class="tab-pane" id="tab-ui">
+          <div class="page-head">
+            <h2>界面设置</h2>
+            <p class="sec-desc">桌宠外观与窗口行为</p>
+          </div>
+          <div class="info-card">
+            <b>桌宠外观</b>
+            <br>当前形象：<span class="hl">猫猫</span>（透明窗口 · 置顶显示 · 跟随 VSCode 运行状态切换跑步/待机动画）
+            <br><b>拖动行为</b>
+            <br>按住猫猫即可把它拎到屏幕任意位置，松开即停；窗口不会吸附边框。
+          </div>
+          <div class="info-btns">
+            <button id="btn-restart">🔄 重启桌宠</button>
+          </div>
+        </div>
 
-  <div class="footer">
-    <span>v0.2.0 · 本地规则 MVP，不联网</span>
-    <div class="btns">
-      <button id="btn-restart">🔄 重启桌宠</button>
-      <button class="primary" id="btn-close">关闭</button>
-    </div>
+        <!-- 插件设置 -->
+        <div class="tab-pane" id="tab-plugin">
+          <div class="page-head">
+            <h2>插件设置</h2>
+            <p class="sec-desc">VSCode 插件：代码识别 + 自动注释</p>
+          </div>
+          <div class="info-card">
+            在 VSCode 中安装 <b>CodePet 注释助手</b> 插件后：
+            <br>· 打开任意 <span class="hl">.c / .cpp / .h</span> 文件，代码行上方自动出现注释气泡
+            <br>· 规则引擎讲解 <span class="hl">29 类 C 语言语法</span>（变量、循环、指针、结构体…）
+            <br>· 全程本地推理，不联网、不上传你的代码
+            <br><b>快捷键</b>：<span class="hl">Ctrl+Alt+C</span> 手动触发当前行注释
+          </div>
+        </div>
+
+        <!-- 关于 -->
+        <div class="tab-pane" id="tab-about">
+          <div class="page-head">
+            <h2>关于</h2>
+            <p class="sec-desc">CodePet 码宠 · v0.2.0</p>
+          </div>
+          <div class="about-card">
+            <div class="about-name">🐋 CodePet 码宠</div>
+            <div class="about-row">
+              写代码的陪伴 AI：VSCode 自动注释 + 桌面桌宠 + 系统开关，三合一纯本地 MVP。
+              <br>规则引擎讲解 <b>29 类 C 语言语法</b>，不联网、隐私友好。
+            </div>
+            <div class="about-row">
+              📦 桌宠改造自 <b>desktop-pet-mitarashi</b>（MIT）
+              <br>🔧 系统开关基于 <b>AutoHotkey v2</b>
+            </div>
+            <div class="about-btns">
+              <button id="btn-restart-about">🔄 重启桌宠</button>
+              <button class="primary" id="btn-close">关闭设置</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
   </div>
 
   <script>
+    // ---------- 左侧导航切换 ----------
+    const navItems = document.querySelectorAll('.nav-item');
+    const sections = document.querySelectorAll('.section');
+    navItems.forEach((item) => {
+      item.addEventListener('click', () => {
+        navItems.forEach((x) => x.classList.remove('active'));
+        item.classList.add('active');
+        sections.forEach((s) => s.classList.toggle('active', s.id === item.dataset.target));
+      });
+    });
+
+    // ---------- 设置页内顶部标签切换 ----------
+    const tabs = document.querySelectorAll('.tab');
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        tabs.forEach((x) => x.classList.remove('active'));
+        tab.classList.add('active');
+        document.querySelectorAll('.tab-pane').forEach((p) => {
+          p.classList.toggle('active', p.id === tab.dataset.tab);
+        });
+      });
+    });
+
+    // ---------- 开关：把“开/关”文字与勾选状态同步 ----------
+    const syncSwitchText = (el) => {
+      const slider = el.nextElementSibling; // .slider 是 input 的相邻兄弟，不是后代
+      if (slider) slider.textContent = el.checked ? '开' : '关';
+    };
+
     // ---------- 计时器 ----------
     const fmt = (ms) => {
       const s = Math.floor(ms / 1000);
@@ -352,32 +777,43 @@
     document.getElementById('btn-pause').addEventListener('click', () => window.electronAPI.timerAction('pause'));
     document.getElementById('btn-reset').addEventListener('click', () => window.electronAPI.timerAction('reset'));
 
-    // ---------- 开关 ----------
+    // ---------- 开关绑定 ----------
     const bind = (id, key) => {
       const el = document.getElementById(id);
-      el.addEventListener('change', () => window.electronAPI.setSwitch(key, el.checked));
+      syncSwitchText(el);
+      el.addEventListener('change', () => {
+        syncSwitchText(el);
+        window.electronAPI.setSwitch(key, el.checked);
+      });
     };
 
     window.electronAPI.getSwitchState().then((s) => {
       if (!s) return;
-      document.getElementById('sw-symbol').checked = !!s.symbol;
-      document.getElementById('sw-shiftIME').checked = !!s.shiftIME;
-      document.getElementById('sw-insertOff').checked = !!s.insertOff;
+      ['symbol', 'shiftIME', 'insertOff'].forEach((k) => {
+        const el = document.getElementById('sw-' + k);
+        el.checked = !!s[k];
+        syncSwitchText(el);
+      });
     });
 
     window.electronAPI.onSwitchState((s) => {
       if (!s) return;
-      document.getElementById('sw-symbol').checked = !!s.symbol;
-      document.getElementById('sw-shiftIME').checked = !!s.shiftIME;
-      document.getElementById('sw-insertOff').checked = !!s.insertOff;
+      ['symbol', 'shiftIME', 'insertOff'].forEach((k) => {
+        const el = document.getElementById('sw-' + k);
+        el.checked = !!s[k];
+        syncSwitchText(el);
+      });
     });
 
     bind('sw-symbol', 'symbol');
     bind('sw-shiftIME', 'shiftIME');
     bind('sw-insertOff', 'insertOff');
 
-    // ---------- 底部 ----------
+    // ---------- 底部操作 ----------
     document.getElementById('btn-restart').addEventListener('click', () => window.electronAPI.restartPet());
+    document.getElementById('btn-restart-home').addEventListener('click', () => window.electronAPI.restartPet());
+    document.getElementById('btn-restart-about').addEventListener('click', () => window.electronAPI.restartPet());
+    document.getElementById('btn-quit').addEventListener('click', () => window.electronAPI.quitPet());
     document.getElementById('btn-close').addEventListener('click', () => window.electronAPI.closeSettings());
   </script>
 </body>

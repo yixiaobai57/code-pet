@@ -15,6 +15,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
     });
   },
   getWindowPosition: () => ipcRenderer.invoke('get-window-position'),
+  // 拖动：渲染层通知主进程开始/结束，跟随移动由主进程轮询光标完成
+  dragStart: (cx, cy) => {
+    const x = Number(cx);
+    const y = Number(cy);
+    if (!Number.isFinite(x) || !Number.isFinite(y)) return;
+    ipcRenderer.send('pet:drag-start', Math.round(x), Math.round(y));
+  },
+  dragEnd: () => ipcRenderer.send('pet:drag-end'),
   getDisplayBounds: () => ipcRenderer.invoke('get-display-bounds'),
   getCodexTaskStatus: () => ipcRenderer.invoke('get-codex-task-status'),
   onSetMode: (callback) => ipcRenderer.on('set-mode', (event, mode) => callback(mode)),
