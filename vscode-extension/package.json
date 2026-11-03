@@ -1,0 +1,74 @@
+{
+  "name": "code-pet-vscode",
+  "displayName": "CodePet 码宠 · 写一行讲一行",
+  "description": "408 考研 C 语言代码识别与自动注释：写一行完整语句，自动生成中文教学注释，悬停即讲，并联动桌面桌宠讲解。纯本地规则，零依赖，不联网。",
+  "version": "0.1.0",
+  "publisher": "yixiaobai57",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Other",
+    "Programming Languages",
+    "Snippets"
+  ],
+  "keywords": [
+    "考研",
+    "408",
+    "C语言",
+    "数据结构",
+    "注释",
+    "代码解释",
+    "教学",
+    "桌宠"
+  ],
+  "activationEvents": [
+    "onLanguage:c",
+    "onLanguage:cpp",
+    "onStartupFinished"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "codePet.explainLine",
+        "title": "CodePet：解释当前行",
+        "category": "CodePet"
+      },
+      {
+        "command": "codePet.toggleAutoInsert",
+        "title": "CodePet：开关自动注释",
+        "category": "CodePet"
+      }
+    ],
+    "configuration": {
+      "title": "CodePet",
+      "properties": {
+        "codePet.autoInsert.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "识别到完整语句后，自动在行尾插入中文教学注释"
+        },
+        "codePet.showHover": {
+          "type": "boolean",
+          "default": true,
+          "description": "鼠标悬停 C/C++ 代码行时显示解释"
+        },
+        "codePet.pushToPet.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "把识别结果推送给桌面桌宠（桌宠未启动时无影响）"
+        },
+        "codePet.bridge.port": {
+          "type": "number",
+          "default": 48672,
+          "description": "本地桥接服务端口（桌宠读取状态的端口）"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "test": "node --test tests/"
+  }
+}

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CodePet 码宠 · 设置</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      background: linear-gradient(160deg, #171a24 0%, #1e2330 100%);
+      color: #e8eaf0;
+      min-height: 100vh;
+      padding: 20px 24px;
+    }
+    h1 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+    h1 .logo {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #6a8dff, #8a6bff);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+    .subtitle {
+      color: #8b93a8;
+      font-size: 12px;
+      margin-bottom: 22px;
+      padding-left: 44px;
+    }
+    .group {
+      background: rgba(255, 255, 255, 0.045);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 14px;
+      padding: 16px 18px;
+      margin-bottom: 16px;
+    }
+    .group-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #aab4ff;
+      margin-bottom: 12px;
+      letter-spacing: 1px;
+    }
+    .item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .item:last-child {
+      border-bottom: none;
+    }
+    .item .info {
+      flex: 1;
+    }
+    .item .name {
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .item .desc {
+      font-size: 12px;
+      color: #8b93a8;
+      margin-top: 3px;
+      line-height: 1.5;
+    }
+    .switch {
+      position: relative;
+      width: 46px;
+      height: 26px;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      inset: 0;
+      background: #3a4054;
+      border-radius: 26px;
+      transition: 0.25s;
+    }
+    .slider::before {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      left: 3px;
+      top: 3px;
+      background: #fff;
+      border-radius: 50%;
+      transition: 0.25s;
+    }
+    .switch input:checked + .slider {
+      background: linear-gradient(135deg, #6a8dff, #8a6bff);
+    }
+    .switch input:checked + .slider::before {
+      transform: translateX(20px);
+    }
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      color: #6b7388;
+      font-size: 11px;
+    }
+    .footer button {
+      background: rgba(255, 255, 255, 0.08);
+      color: #cfd6e6;
+      border: none;
+      border-radius: 8px;
+      padding: 7px 14px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .footer button:hover {
+      background: rgba(255, 255, 255, 0.14);
+    }
+    .tip {
+      margin-top: 14px;
+      padding: 10px 14px;
+      background: rgba(255, 200, 120, 0.08);
+      border: 1px solid rgba(255, 200, 120, 0.2);
+      border-radius: 10px;
+      color: #ffd9a0;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <h1><span class="logo">🐋</span>CodePet 码宠</h1>
+  <div class="subtitle">写代码的陪伴 AI · 设置面板</div>
+
+  <div class="group">
+    <div class="group-title">⚙️ 写代码帮手（系统开关）</div>
+
+    <div class="item">
+      <div class="info">
+        <div class="name">中英文符号开关</div>
+        <div class="desc">开启后，中文输入法下输入 , . ; ( ) 等也强制输出英文标点<br>再也不会出现中文逗号混进代码的报错</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="sw-symbol">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="item">
+      <div class="info">
+        <div class="name">Shift 切换中英文输入</div>
+        <div class="desc">单击 Shift 快速切换中/英文输入法<br>长按或 Shift+字母 不受影响</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="sw-shiftIME">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="item">
+      <div class="info">
+        <div class="name">禁用 Insert 改写模式</div>
+        <div class="desc">防止误按 Insert 进入改写模式，把刚写的代码悄悄覆盖掉</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="sw-insertOff">
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <div class="tip">
+    💡 这三个开关由 AutoHotkey 脚本实现（本项目已内置 <b>code-switches.ahk</b>），
+    仅在你开启时生效。首次使用如果开关不生效，请先安装 AutoHotkey v2：
+    <code>winget install AutoHotkey.AutoHotkey</code>
+  </div>
+
+  <div class="footer">
+    <span>v0.1.0 · 本地规则 MVP，不联网</span>
+    <button id="btn-close">关闭</button>
+  </div>
+
+  <script>
+    const state = {
+      symbol: false,
+      shiftIME: false,
+      insertOff: false
+    };
+
+    function bind(id, key) {
+      const el = document.getElementById(id);
+      el.addEventListener('change', () => {
+        window.electronAPI.setSwitch(key, el.checked);
+      });
+    }
+
+    window.electronAPI.getSwitchState().then((s) => {
+      if (s) {
+        state.symbol = !!s.symbol;
+        state.shiftIME = !!s.shiftIME;
+        state.insertOff = !!s.insertOff;
+        document.getElementById('sw-symbol').checked = state.symbol;
+        document.getElementById('sw-shiftIME').checked = state.shiftIME;
+        document.getElementById('sw-insertOff').checked = state.insertOff;
+      }
+    });
+
+    window.electronAPI.onSwitchState((s) => {
+      if (!s) return;
+      document.getElementById('sw-symbol').checked = !!s.symbol;
+      document.getElementById('sw-shiftIME').checked = !!s.shiftIME;
+      document.getElementById('sw-insertOff').checked = !!s.insertOff;
+    });
+
+    bind('sw-symbol', 'symbol');
+    bind('sw-shiftIME', 'shiftIME');
+    bind('sw-insertOff', 'insertOff');
+
+    document.getElementById('btn-close').addEventListener('click', () => {
+      window.electronAPI.closeSettings();
+    });
+  </script>
+</body>
+</html>

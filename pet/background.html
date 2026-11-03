@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: transparent;
+      overflow: hidden;
+      -webkit-app-region: no-drag;
+      user-select: none;
+    }
+
+    .background-container {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.3;
+    }
+
+    .background-image {
+      width: 100vw;
+      height: auto;
+      object-fit: cover;
+    }
+  </style>
+</head>
+<body>
+  <div class="background-container">
+    <img src="assets/background-running-cat.png" alt="Background" class="background-image" id="backgroundImage">
+  </div>
+
+  <script>
+    // 透明度を設定（トレイから変更可能）
+    window.electronAPI?.onSetBackgroundOpacity?.((opacity) => {
+      document.querySelector('.background-container').style.opacity = opacity;
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+{
+  "name": "code-pet",
+  "version": "0.1.0",
+  "description": "CodePet 码宠 · 写代码的陪伴 AI（408 考研学习搭子）：透明置顶桌面宠物，写代码时在桌面陪伴，自动讲解 VSCode 里刚写的 C/C++ 代码",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "build:linux": "electron-builder --linux"
+  },
+  "keywords": [
+    "desktop-pet",
+    "desktop-mascot",
+    "electron",
+    "vscode",
+    "coding-companion",
+    "408",
+    "c-language"
+  ],
+  "author": "yixiaobai57",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "electron": "^41.0.2",
+    "electron-builder": "^26.8.1",
+    "sharp": "^0.34.5"
+  },
+  "build": {
+    "appId": "com.codepet.desktop-pet",
+    "productName": "CodePet",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "icon": "assets/app-icon.png",
+    "files": [
+      "**/*",
+      "!**/node_modules/*/{CHANGELOG.md,README.md,readme.md,readme}",
+      "!**/node_modules/.bin",
+      "!shot_*.png",
+      "!dist"
+    ],
+    "win": {
+      "target": "portable",
+      "forceCodeSigning": false,
+      "icon": "assets/app-icon.png"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "assets/app-icon.png"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "assets/app-icon.png"
+    }
+  }
+}

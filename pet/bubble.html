@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CodePet Bubble</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      width: 100vw;
+      height: 100vh;
+      background: transparent;
+      overflow: hidden;
+      user-select: none;
+      pointer-events: none;
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+    }
+    .bubble {
+      position: relative;
+      margin: 6px;
+      background: rgba(24, 26, 32, 0.92);
+      border: 1px solid rgba(120, 140, 255, 0.35);
+      border-radius: 16px;
+      padding: 12px 14px;
+      color: #e8eaf0;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(6px);
+      width: calc(100vw - 12px);
+      height: calc(100vh - 12px);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      overflow: hidden;
+    }
+    .bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -7px;
+      left: 28px;
+      width: 12px;
+      height: 12px;
+      background: inherit;
+      border-right: 1px solid rgba(120, 140, 255, 0.35);
+      border-bottom: 1px solid rgba(120, 140, 255, 0.35);
+      transform: rotate(45deg);
+    }
+    .head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .badge {
+      background: linear-gradient(135deg, #6a8dff, #8a6bff);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 10px;
+      border-radius: 20px;
+      letter-spacing: 1px;
+      flex-shrink: 0;
+    }
+    .pet-name {
+      color: #9aa3b8;
+      font-size: 12px;
+    }
+    .code-line {
+      font-family: "Cascadia Code", Consolas, monospace;
+      font-size: 12px;
+      color: #ffd9a0;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 8px;
+      padding: 6px 10px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .comment {
+      font-size: 13px;
+      color: #cfd6e6;
+      line-height: 1.5;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+    }
+  </style>
+</head>
+<body>
+  <div class="bubble">
+    <div class="head">
+      <span class="badge" id="badge">变量</span>
+      <span class="pet-name">码码 · 写一行讲一行</span>
+    </div>
+    <div class="code-line" id="codeLine"></div>
+    <div class="comment" id="comment"></div>
+  </div>
+  <script>
+    const badge = document.getElementById('badge');
+    const codeLine = document.getElementById('codeLine');
+    const comment = document.getElementById('comment');
+
+    window.electronAPI.onBubble((payload) => {
+      badge.textContent = payload.type || '代码';
+      codeLine.textContent = payload.line || '';
+      comment.textContent = payload.detail || payload.comment || '';
+    });
+  </script>
+</body>
+</html>

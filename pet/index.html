@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>みたらし - Desktop Pet</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      background: transparent;
+      overflow: hidden;
+      -webkit-app-region: no-drag;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .container {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+      pointer-events: none;
+    }
+
+    .mascot {
+      position: absolute;
+      left: 0;
+      top: 0;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+      transition: opacity 0.3s ease;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      transform-origin: center center;
+      pointer-events: none;
+    }
+
+    .mascot.idle {
+      opacity: 0.86;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img class="mascot" id="mascot" alt="Desktop mascot">
+  </div>
+
+  <script>
+    const mascot = document.getElementById('mascot');
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const mascotId = urlParams.get('mascot') || 'cat';
+    const EDGE_OVERHANG = 24;
+    const CLOCKWISE = 1;
+    const COUNTER_CLOCKWISE = -1;
+    const CODEX_POLL_INTERVAL_MS = 5000;
+    const CODEX_ACTIVITY_SPEED_CAP = 18;
+    const STAGE_PADDING = 8;
+    const MASCOT_CONFIGS = {
+      cat: {
+        runningSrc: 'assets/running_cat.webp',
+        idleSrc: 'assets/mitarashi.webp',
+        width: 120,
+        height: 84,
+        speedMultiplier: 1.05,
+        alt: 'Running cat'
+      },
+      penguin: {
+        runningSrc: 'assets/penguin_running.webp',
+        idleSrc: 'assets/penguin_idle.png',
+        width: 84,
+        height: 84,
+        speedMultiplier: 0.9,
+        alt: 'Running penguin'
+      }
+    };
+    const mascotConfig = MASCOT_CONFIGS[mascotId] || MASCOT_CONFIGS.cat;
+
+    let mode = 'running';
+    let effectiveMode = 'running';
+    let randomTimer = null;
+    let codexPollTimer = null;
+    let manualWalkSpeed = 3;
+    let codexTaskCount = 0;
+    let walkTimer = null;
+    let currentX = 0;
+    let currentY = 0;
+    let pathOffset = 0;
+    let currentEdge = 'bottom';
+    let travelDirection = COUNTER_CLOCKWISE;
+    let displayBounds = { x: 0, y: 0, width: 0, height: 0 };
+
+    function toFiniteNumber(value, fallback = 0) {
+      const numericValue = Number(value);
+      return Number.isFinite(numericValue) ? numericValue : fallback;
+    }
+
+    function getWindowSize() {
+      return {
+        width: Math.max(
+          1,
+          toFiniteNumber(window.innerWidth, 0)
+            || toFiniteNumber(document.documentElement?.clientWidth, 0)
+            || toFiniteNumber(window.outerWidth, mascotConfig.width + (STAGE_PADDING * 2))
+        ),
+        height: Math.max(
+          1,
+          toFiniteNumber(window.innerHeight, 0)
+            || toFiniteNumber(document.documentElement?.clientHeight, 0)
+            || toFiniteNumber(window.outerHeight, mascotConfig.height + (STAGE_PADDING * 2))
+        )
+      };
+    }
+
+    function getFallbackDisplayBounds() {
+      const windowSize = getWindowSize();
+
+      return {
+        x: toFiniteNumber(window.screenX, 0),
+        y: toFiniteNumber(window.screenY, 0),
+        width: Math.max(
+          1,
+          toFiniteNumber(window.screen?.availWidth, 0)
+            || toFiniteNumber(window.screen?.width, 0)
+            || windowSize.width
+        ),
+        height: Math.max(
+          1,
+          toFiniteNumber(window.screen?.availHeight, 0)
+            || toFiniteNumber(window.screen?.height, 0)
+            || windowSize.height
+        )
+      };
+    }
+
+    function sanitizeDisplayBounds(nextBounds) {
+      const fallbackBounds = getFallbackDisplayBounds();
+
+      return {
+        x: toFiniteNumber(nextBounds?.x, fallbackBounds.x),
+        y: toFiniteNumber(nextBounds?.y, fallbackBounds.y),
+        width: Math.max(1, toFiniteNumber(nextBounds?.width, fallbackBounds.width)),
+        height: Math.max(1, toFiniteNumber(nextBounds?.height, fallbackBounds.height))
+      };
+    }
+
+    function setWindowPositionSafely(x, y) {
+      const nextX = toFiniteNumber(x, NaN);
+      const nextY = toFiniteNumber(y, NaN);
+
+      if (!Number.isFinite(nextX) || !Number.isFinite(nextY)) {
+        console.warn('Skipped invalid mascot position update', { mascotId, x, y });
+        return false;
+      }
+
+      window.electronAPI.setWindowPosition(nextX, nextY);
+      return true;
+    }
+
+    function getDisplayedMode() {
+      if (mode === 'random') {
+        return effectiveMode;
+      }
+
+      if (mode === 'codex') {
+        return codexTaskCount > 0 ? 'running' : 'idle';
+      }
+
+      return mode;
+    }
+
+    function shouldRun() {
+      return getDisplayedMode() === 'running';
+    }
+
+    function getBaseWalkSpeed() {
+      if (mode !== 'codex') {
+        return manualWalkSpeed;
+      }
+
+      if (codexTaskCount <= 0) {
+        return 0;
+      }
+
+      return Math.min(CODEX_ACTIVITY_SPEED_CAP, 3 + ((codexTaskCount - 1) * 2));
+    }
+
+    function getActiveWalkSpeed() {
+      return getBaseWalkSpeed() * mascotConfig.speedMultiplier;
+    }
+
+    async function updateDisplayBounds() {
+      try {
+        displayBounds = sanitizeDisplayBounds(await window.electronAPI.getDisplayBounds());
+      } catch (error) {
+        console.error('Failed to read display bounds', error);
+        displayBounds = sanitizeDisplayBounds(displayBounds);
+      }
+
+      return displayBounds;
+    }
+
+    function clamp(value, min, max) {
+      return Math.min(Math.max(value, min), max);
+    }
+
+    function normalizeOffset(offset, perimeter) {
+      if (perimeter <= 0) {
+        return 0;
+      }
+
+      return ((offset % perimeter) + perimeter) % perimeter;
+    }
+
+    function getTrackMetrics() {
+      const windowSize = getWindowSize();
+      const safeDisplayBounds = sanitizeDisplayBounds(displayBounds);
+      const minX = safeDisplayBounds.x - EDGE_OVERHANG;
+      const maxX = safeDisplayBounds.x + safeDisplayBounds.width - windowSize.width + EDGE_OVERHANG;
+      const minY = safeDisplayBounds.y - EDGE_OVERHANG;
+      const maxY = safeDisplayBounds.y + safeDisplayBounds.height - windowSize.height + EDGE_OVERHANG;
+      const spanX = Math.max(maxX - minX, 1);
+      const spanY = Math.max(maxY - minY, 1);
+
+      return {
+        minX,
+        maxX,
+        minY,
+        maxY,
+        spanX,
+        spanY,
+        perimeter: (spanX * 2) + (spanY * 2)
+      };
+    }
+
+    function getTrackPositionFromOffset(offset, track = getTrackMetrics()) {
+      const normalizedOffset = normalizeOffset(offset, track.perimeter);
+
+      if (normalizedOffset < track.spanX) {
+        return {
+          edge: 'top',
+          x: track.minX + normalizedOffset,
+          y: track.minY
+        };
+      }
+
+      if (normalizedOffset < track.spanX + track.spanY) {
+        return {
+          edge: 'right',
+          x: track.maxX,
+          y: track.minY + (normalizedOffset - track.spanX)
+        };
+      }
+
+      if (normalizedOffset < (track.spanX * 2) + track.spanY) {
+        return {
+          edge: 'bottom',
+          x: track.maxX - (normalizedOffset - track.spanX - track.spanY),
+          y: track.maxY
+        };
+      }
+
+      return {
+        edge: 'left',
+        x: track.minX,
+        y: track.maxY - (normalizedOffset - (track.spanX * 2) - track.spanY)
+      };
+    }
+
+    function getMovementVector(edge) {
+      if (travelDirection === CLOCKWISE) {
+        switch (edge) {
+          case 'top':
+            return { dx: 1, dy: 0 };
+          case 'right':
+            return { dx: 0, dy: 1 };
+          case 'bottom':
+            return { dx: -1, dy: 0 };
+          default:
+            return { dx: 0, dy: -1 };
+        }
+      }
+
+      switch (edge) {
+        case 'top':
+          return { dx: -1, dy: 0 };
+        case 'right':
+          return { dx: 0, dy: -1 };
+        case 'bottom':
+          return { dx: 1, dy: 0 };
+        default:
+          return { dx: 0, dy: 1 };
+      }
+    }
+
+    function applyMascotPose(edge = currentEdge) {
+      const movement = getMovementVector(edge);
+      const windowSize = getWindowSize();
+      let rotation = 0;
+      let flip = 1;
+      let centerX = windowSize.width / 2;
+      let centerY = windowSize.height / 2;
+
+      if (edge === 'bottom') {
+        rotation = 0;
+        flip = movement.dx > 0 ? -1 : 1;
+        centerY = windowSize.height - STAGE_PADDING - (mascotConfig.height / 2);
+      } else if (edge === 'top') {
+        rotation = 180;
+        flip = movement.dx < 0 ? -1 : 1;
+        centerY = STAGE_PADDING + (mascotConfig.height / 2);
+      } else if (edge === 'left') {
+        rotation = 90;
+        flip = movement.dy > 0 ? -1 : 1;
+        centerX = STAGE_PADDING + (mascotConfig.height / 2);
+      } else {
+        rotation = -90;
+        flip = movement.dy < 0 ? -1 : 1;
+        centerX = windowSize.width - STAGE_PADDING - (mascotConfig.height / 2);
+      }
+
+      const translateX = centerX - (mascotConfig.width / 2);
+      const translateY = centerY - (mascotConfig.height / 2);
+
+      mascot.style.transform = `translate(${translateX}px, ${translateY}px) rotate(${rotation}deg) scaleX(${flip})`;
+    }
+
+    function updateImage() {
+      const isRunning = getDisplayedMode() === 'running';
+
+      mascot.src = isRunning ? mascotConfig.runningSrc : mascotConfig.idleSrc;
+      mascot.alt = mascotConfig.alt;
+      mascot.style.width = `${mascotConfig.width}px`;
+      mascot.style.height = `${mascotConfig.height}px`;
+      mascot.classList.toggle('idle', !isRunning);
+      applyMascotPose();
+    }
+
+    function stopAutoWalk() {
+      if (walkTimer) {
+        clearInterval(walkTimer);
+        walkTimer = null;
+      }
+    }
+
+    function snapToNearestEdge() {
+      const track = getTrackMetrics();
+      const clampedX = clamp(currentX, track.minX, track.maxX);
+      const clampedY = clamp(currentY, track.minY, track.maxY);
+      const candidates = [
+        {
+          edge: 'top',
+          x: clampedX,
+          y: track.minY,
+          offset: clampedX - track.minX
+        },
+        {
+          edge: 'right',
+          x: track.maxX,
+          y: clampedY,
+          offset: track.spanX + (clampedY - track.minY)
+        },
+        {
+          edge: 'bottom',
+          x: clampedX,
+          y: track.maxY,
+          offset: track.spanX + track.spanY + (track.maxX - clampedX)
+        },
+        {
+          edge: 'left',
+          x: track.minX,
+          y: clampedY,
+          offset: (track.spanX * 2) + track.spanY + (track.maxY - clampedY)
+        }
+      ];
+
+      let nearestCandidate = candidates[0];
+      let shortestDistance = Infinity;
+
+      candidates.forEach((candidate) => {
+        const distance = Math.hypot(currentX - candidate.x, currentY - candidate.y);
+        if (distance < shortestDistance) {
+          shortestDistance = distance;
+          nearestCandidate = candidate;
+        }
+      });
+
+      currentX = nearestCandidate.x;
+      currentY = nearestCandidate.y;
+      currentEdge = nearestCandidate.edge;
+      pathOffset = normalizeOffset(nearestCandidate.offset, track.perimeter);
+      applyMascotPose();
+      setWindowPositionSafely(currentX, currentY);
+    }
+
+    async function preparePathFromCurrentPosition() {
+      await updateDisplayBounds();
+      snapToNearestEdge();
+    }
+
+    function syncWindowToPath() {
+      const track = getTrackMetrics();
+      const nextPosition = getTrackPositionFromOffset(pathOffset, track);
+
+      currentEdge = nextPosition.edge;
+      currentX = nextPosition.x;
+      currentY = nextPosition.y;
+      applyMascotPose();
+      setWindowPositionSafely(currentX, currentY);
+    }
+
+    function enterRandomMode() {
+      effectiveMode = 'running';
+      scheduleNextSwitch();
+      updateImage();
+      void startAutoWalk();
+    }
+
+    function exitRandomMode() {
+      if (randomTimer) {
+        clearTimeout(randomTimer);
+        randomTimer = null;
+      }
+
+      effectiveMode = mode;
+    }
+
+    function stopCodexModeSync() {
+      if (codexPollTimer) {
+        clearInterval(codexPollTimer);
+        codexPollTimer = null;
+      }
+    }
+
+    async function syncCodexActivity() {
+      if (mode !== 'codex') {
+        return;
+      }
+
+      const wasRunning = shouldRun();
+
+      try {
+        const status = await window.electronAPI.getCodexTaskStatus();
+        codexTaskCount = Math.max(0, Number(status?.taskCount ?? 0));
+      } catch (error) {
+        console.error('Failed to read Codex task status', error);
+        codexTaskCount = 0;
+      }
+
+      const isRunning = shouldRun();
+      updateImage();
+
+      if (!wasRunning && isRunning) {
+        await startAutoWalk();
+      } else if (wasRunning && !isRunning) {
+        stopAutoWalk();
+      }
+    }
+
+    async function enterCodexMode() {
+      stopAutoWalk();
+      stopCodexModeSync();
+      await syncCodexActivity();
+      codexPollTimer = setInterval(() => {
+        void syncCodexActivity();
+      }, CODEX_POLL_INTERVAL_MS);
+    }
+
+    function exitCodexMode() {
+      stopCodexModeSync();
+      codexTaskCount = 0;
+    }
+
+    function scheduleNextSwitch() {
+      if (mode !== 'random') {
+        return;
+      }
+
+      const delay = effectiveMode === 'running'
+        ? (Math.random() * 7000 + 3000)
+        : (Math.random() * 3000 + 2000);
+
+      randomTimer = setTimeout(() => {
+        effectiveMode = effectiveMode === 'running' ? 'idle' : 'running';
+
+        if (effectiveMode === 'running') {
+          updateImage();
+          void startAutoWalk();
+        } else {
+          stopAutoWalk();
+          updateImage();
+        }
+
+        scheduleNextSwitch();
+      }, delay);
+    }
+
+    async function startAutoWalk() {
+      if (!shouldRun()) {
+        stopAutoWalk();
+        return;
+      }
+
+      stopAutoWalk();
+      await preparePathFromCurrentPosition();
+      walkTimer = setInterval(() => {
+        if (!shouldRun()) {
+          return;
+        }
+
+        const walkSpeed = getActiveWalkSpeed();
+
+        if (walkSpeed <= 0) {
+          return;
+        }
+
+        const track = getTrackMetrics();
+        pathOffset = normalizeOffset(pathOffset + (walkSpeed * travelDirection), track.perimeter);
+        syncWindowToPath();
+      }, 30);
+    }
+
+    window.electronAPI.onSetMode(async (newMode) => {
+      if (mode === 'random' && newMode !== 'random') {
+        exitRandomMode();
+      }
+
+      if (mode === 'codex' && newMode !== 'codex') {
+        exitCodexMode();
+      }
+
+      if (newMode === 'random') {
+        mode = 'random';
+        enterRandomMode();
+        return;
+      }
+
+      if (newMode === 'codex') {
+        mode = 'codex';
+        await enterCodexMode();
+        return;
+      }
+
+      mode = newMode;
+      updateImage();
+
+      if (mode === 'running') {
+        await startAutoWalk();
+      } else {
+        stopAutoWalk();
+      }
+    });
+
+    window.electronAPI.onSetSpeed((newSpeed) => {
+      manualWalkSpeed = newSpeed;
+    });
+
+    updateImage();
+
+    setTimeout(async () => {
+      await updateDisplayBounds();
+      const position = await window.electronAPI.getWindowPosition();
+      currentX = toFiniteNumber(position?.x, getFallbackDisplayBounds().x);
+      currentY = toFiniteNumber(position?.y, getFallbackDisplayBounds().y);
+      snapToNearestEdge();
+      updateImage();
+      void startAutoWalk();
+    }, 500);
+  </script>
+</body>
+</html>
