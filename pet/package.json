@@ -47,6 +47,7 @@
     "win": {
       "target": "portable",
       "forceCodeSigning": false,
+      "signAndEditExecutable": false,
       "icon": "assets/app-icon.png"
     },
     "mac": {

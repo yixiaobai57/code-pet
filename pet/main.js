@@ -14,18 +14,17 @@ const VSCODE_BRIDGE_URL = 'http://127.0.0.1:48672';
 const POLL_VSCODE_MS = 3000;
 const BUBBLE_SHOW_MS = 7000;
 
+// CodePet 新增：码字计时器
+const TIMER_FILE = 'code-pet-timer.json';
+const POLL_ACTIVE_GRANULARITY_MS = POLL_VSCODE_MS; // 每轮询到 active 时累计的毫秒数
+
+// 桌宠只保留猫猫（用户偏好）：去掉企鹅
 const MASCOT_WINDOW_CONFIGS = [
   {
     id: 'cat',
     windowWidth: 140,
     windowHeight: 140,
     startOffsetX: 32
-  },
-  {
-    id: 'penguin',
-    windowWidth: 108,
-    windowHeight: 108,
-    startOffsetX: 136
   }
 ];
 
@@ -36,6 +35,7 @@ let tray = null;
 let bubbleWindow = null;
 let bubbleTimer = null;
 let settingsWindow = null;
+let contextMenuWindow = null;
 let isBackgroundVisible = false;
 let currentMode = 'vscode';
 let lastVsCodeActive = false;
@@ -43,6 +43,14 @@ let lastVsCodeActive = false;
 // CodePet 新增：系统开关（AutoHotkey）状态
 let ahkProc = null;
 const switchState = { symbol: false, shiftIME: false, insertOff: false };
+
+// CodePet 新增：码字计时器状态
+// autoActiveMs  —— VSCode 活跃（写代码）自动累计时长
+// manualState    —— 手动计时：idle | running | paused
+// manualStartAt  —— 手动计时开始时间戳（running 时有效）
+// manualAccMs    —— 手动计时已累计毫秒（暂停时保留）
+let timerState = { autoActiveMs: 0, manualState: 'idle', manualStartAt: 0, manualAccMs: 0 };
+let timerDirty = false;
 
 const hasSingleInstanceLock = app.requestSingleInstanceLock();
 
@@ -179,16 +187,18 @@ function getMascotWindows() {
 }
 
 function getInitialMascotPosition(config, display = screen.getPrimaryDisplay()) {
+  // 用户偏好：不吸附边框 → 初始放在屏幕右下角，完整可见
+  const margin = 12;
   return {
-    x: display.bounds.x + config.startOffsetX,
-    y: display.bounds.y + display.bounds.height - config.windowHeight + EDGE_OVERHANG
+    x: display.bounds.x + display.bounds.width - config.windowWidth - margin,
+    y: display.bounds.y + display.bounds.height - config.windowHeight - margin
   };
 }
 
 function applyMascotWindowBehavior(targetWindow) {
   if (!targetWindow || targetWindow.isDestroyed()) return;
   targetWindow.setAlwaysOnTop(true, ALWAYS_ON_TOP_LEVEL);
-  targetWindow.setIgnoreMouseEvents(true, { forward: true });
+  // 用户偏好：可交互（拖动拎出、右键菜单）→ 不再忽略鼠标事件
   targetWindow.setFocusable(false);
 }
 
@@ -421,6 +431,8 @@ async function pollVsCodeStatus() {
       lastVsCodeActive = active;
       sendToMascotWindows('set-mode', active ? 'running' : 'idle');
     }
+    // 码字计时器：活跃时自动累计
+    accumulateAutoTimer();
   } catch (e) {
     if (lastVsCodeActive !== false) {
       lastVsCodeActive = false;
@@ -473,6 +485,113 @@ function openSettings() {
   });
   settingsWindow.loadFile('settings.html');
   settingsWindow.on('closed', () => { settingsWindow = null; });
+}
+
+// ---------------------------------------------------------------- CodePet 新增：重启
+
+function restartApp() {
+  // 保留当前参数（如 --open-settings）并干净重启
+  app.relaunch();
+  app.exit(0);
+}
+
+// ---------------------------------------------------------------- CodePet 新增：右键菜单（桌宠）
+
+function openContextMenu(x, y) {
+  if (contextMenuWindow && !contextMenuWindow.isDestroyed()) {
+    contextMenuWindow.close();
+  }
+  contextMenuWindow = new BrowserWindow({
+    width: 210,
+    height: 176,
+    show: false,
+    transparent: true,
+    frame: false,
+    alwaysOnTop: true,
+    resizable: false,
+    skipTaskbar: true,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false
+    }
+  });
+  contextMenuWindow.loadFile('menu.html');
+  contextMenuWindow.setAlwaysOnTop(true, ALWAYS_ON_TOP_LEVEL);
+  contextMenuWindow.setPosition(Math.round(x), Math.round(y));
+  contextMenuWindow.setFocusable(true);
+
+  contextMenuWindow.on('closed', () => { contextMenuWindow = null; });
+
+  contextMenuWindow.webContents.once('did-finish-load', () => {
+    contextMenuWindow.showInactive();
+  });
+  // 点击空白处关闭
+  contextMenuWindow.on('blur', () => {
+    if (contextMenuWindow && !contextMenuWindow.isDestroyed()) contextMenuWindow.close();
+  });
+}
+
+// ---------------------------------------------------------------- CodePet 新增：码字计时器
+
+function getTimerFilePath() {
+  return path.join(app.getPath('userData'), TIMER_FILE);
+}
+
+function loadTimerState() {
+  try {
+    const raw = fs.readFileSync(getTimerFilePath(), 'utf8');
+    const data = JSON.parse(raw);
+    timerState.autoActiveMs = Math.max(0, Number(data.autoActiveMs) || 0);
+    timerState.manualState = 'idle';
+    timerState.manualStartAt = 0;
+    timerState.manualAccMs = Math.max(0, Number(data.manualAccMs) || 0);
+  } catch (e) {
+    /* 首次运行或文件损坏：使用默认值 */
+  }
+}
+
+function persistTimerState() {
+  if (!timerDirty) return;
+  try {
+    fs.writeFileSync(getTimerFilePath(), JSON.stringify({
+      autoActiveMs: timerState.autoActiveMs,
+      manualAccMs: timerState.manualAccMs
+    }));
+    timerDirty = false;
+  } catch (e) {
+    console.error('[CodePet] failed to persist timer:', e.message);
+  }
+}
+
+function getTimerView() {
+  const now = Date.now();
+  const manualMs = timerState.manualState === 'running'
+    ? timerState.manualAccMs + (now - timerState.manualStartAt)
+    : timerState.manualAccMs;
+  return {
+    autoActiveMs: timerState.autoActiveMs,
+    manualState: timerState.manualState,
+    manualMs
+  };
+}
+
+/** VSCode 活跃（写代码）时自动累计码字时长 */
+function accumulateAutoTimer() {
+  if (lastVsCodeActive) {
+    timerState.autoActiveMs += POLL_ACTIVE_GRANULARITY_MS;
+    timerDirty = true;
+    persistTimerState();
+  }
+}
+
+/** 每 1 秒向设置面板广播一次计时视图 */
+function startTimerBroadcast() {
+  setInterval(() => {
+    if (settingsWindow && !settingsWindow.isDestroyed()) {
+      settingsWindow.webContents.send('timer:tick', getTimerView());
+    }
+  }, 1000);
 }
 
 // ---------------------------------------------------------------- 托盘
@@ -577,6 +696,10 @@ function updateTrayMenu() {
     },
     { type: 'separator' },
     {
+      label: '重启（Relaunch）',
+      click: () => { restartApp(); }
+    },
+    {
       label: 'Quit',
       click: () => {
         app.isQuitting = true;
@@ -598,6 +721,9 @@ function setMode(mode) {
 
 app.whenReady().then(async () => {
   const startHidden = shouldStartHidden();
+
+  loadTimerState();
+  startTimerBroadcast();
 
   await createTray();
   ensureMascotWindows({ show: !startHidden });
@@ -707,4 +833,71 @@ ipcMain.on('settings:close', (event) => {
 ipcMain.on('settings:quit-pet', (event) => {
   app.isQuitting = true;
   app.quit();
+});
+
+// CodePet 新增：重启 / 右键菜单 / 计时器 IPC
+
+ipcMain.on('settings:restart-pet', () => {
+  restartApp();
+});
+
+ipcMain.on('mascot:context-menu', (event, pos) => {
+  const targetWindow = BrowserWindow.fromWebContents(event.sender);
+  if (!targetWindow || targetWindow.isDestroyed()) return;
+  let x = pos && Number.isFinite(Number(pos.x)) ? Number(pos.x) : null;
+  let y = pos && Number.isFinite(Number(pos.y)) ? Number(pos.y) : null;
+  if (x === null || y === null) {
+    const [wx, wy] = targetWindow.getPosition();
+    x = wx + 20;
+    y = wy + 20;
+  }
+  openContextMenu(x, y);
+});
+
+ipcMain.on('menu:action', (event, action) => {
+  if (action === 'settings') openSettings();
+  else if (action === 'restart') restartApp();
+  else if (action === 'quit') {
+    app.isQuitting = true;
+    app.quit();
+  }
+  if (contextMenuWindow && !contextMenuWindow.isDestroyed()) contextMenuWindow.close();
+});
+
+ipcMain.handle('timer:get-state', () => getTimerView());
+
+ipcMain.on('timer:action', (event, action) => {
+  const now = Date.now();
+  if (action === 'start') {
+    if (timerState.manualState !== 'running') {
+      timerState.manualState = 'running';
+      timerState.manualStartAt = now;
+    }
+  } else if (action === 'pause') {
+    if (timerState.manualState === 'running') {
+      timerState.manualAccMs += now - timerState.manualStartAt;
+      timerState.manualState = 'paused';
+      timerState.manualStartAt = 0;
+      timerDirty = true;
+      persistTimerState();
+    }
+  } else if (action === 'reset') {
+    timerState.manualState = 'idle';
+    timerState.manualStartAt = 0;
+    timerState.manualAccMs = 0;
+    timerDirty = true;
+    persistTimerState();
+  }
+  if (settingsWindow && !settingsWindow.isDestroyed()) {
+    settingsWindow.webContents.send('timer:tick', getTimerView());
+  }
+});
+
+// 应用退出前持久化计时数据
+app.on('before-quit', () => {
+  if (timerState.manualState === 'running') {
+    timerState.manualAccMs += Date.now() - timerState.manualStartAt;
+    timerState.manualState = 'paused';
+  }
+  persistTimerState();
 });

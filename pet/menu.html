@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CodePet 菜单</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      background: rgba(23, 26, 36, 0.96);
+      color: #e8eaf0;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+      padding: 6px;
+      user-select: none;
+    }
+    .head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px 8px;
+    }
+    .head .logo {
+      width: 26px;
+      height: 26px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #6a8dff, #8a6bff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+    .head .name {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 9px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.15s;
+      color: #d7dceb;
+    }
+    .item:hover {
+      background: rgba(106, 141, 255, 0.16);
+      color: #fff;
+    }
+    .item .ico {
+      width: 18px;
+      text-align: center;
+      font-size: 13px;
+    }
+    .sep {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.08);
+      margin: 5px 4px;
+    }
+    .item.danger:hover {
+      background: rgba(255, 90, 90, 0.16);
+      color: #ff9a9a;
+    }
+  </style>
+</head>
+<body>
+  <div class="head">
+    <span class="logo">🐋</span>
+    <span class="name">CodePet 码宠</span>
+  </div>
+  <div class="item" id="m-settings">
+    <span class="ico">⚙️</span>设置面板
+  </div>
+  <div class="item" id="m-restart">
+    <span class="ico">🔄</span>重启
+  </div>
+  <div class="sep"></div>
+  <div class="item danger" id="m-quit">
+    <span class="ico">✕</span>退出
+  </div>
+
+  <script>
+    const run = (action) => window.electronAPI.menuAction(action);
+    document.getElementById('m-settings').addEventListener('click', () => run('settings'));
+    document.getElementById('m-restart').addEventListener('click', () => run('restart'));
+    document.getElementById('m-quit').addEventListener('click', () => run('quit'));
+  </script>
+</body>
+</html>

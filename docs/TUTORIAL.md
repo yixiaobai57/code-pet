@@ -7,7 +7,7 @@
 备考 408 手写代码时，CodePet 在你身边做三件事：
 
 - 你每写一行完整语句，VSCode 里**自动出现中文教学注释**；
-- 桌面上的小猫/企鹅**在你写代码时奔跑活跃**，停下来时待机休息；
+- 桌面上的小猫**在你写代码时原地奔跑活跃**，停下来时待机休息；
 - 识别结果以**讲解气泡**的形式从桌宠弹出，把这一行"翻译"成大白话。
 
 全程本地运行、不联网。
@@ -35,7 +35,7 @@ $env:ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
 npm install
 ```
 
-启动后，屏幕上出现一只三花猫（或企鹅）——它现在处于"待机"状态，等你去写代码。
+启动后，屏幕上出现一只三花猫——它现在处于"待机"状态，等你去写代码。按住它拖到任意位置即可"拎出来"放好，右键弹出快捷菜单。
 
 ![桌宠待机](screenshots/shot_cat.png)
 
@@ -44,7 +44,7 @@ npm install
 ```powershell
 cd vscode-extension
 npm test                 # 先跑 44 个单元测试，确认环境 OK
-code --install-extension ../pet/dist/CodePet-0.1.0.vsix   # 见文末打包说明
+code --install-extension code-pet-vscode-0.1.0.vsix   # 见文末打包说明
 ```
 
 装好后打开任意 `.c` 文件开始写代码。插件默认开启了"自动注释"：写完一行完整语句，行尾自动补上中文注释，例如：
@@ -66,6 +66,12 @@ LinkList L = (LinkList)malloc(sizeof(struct Node));  // 动态内存：为结构
 ![讲解气泡](screenshots/shot_bubble.png)
 
 写一段链表代码试试：`p = p->next;` 会得到"指针遍历：p 指向下一个节点"的讲解，`malloc` 会得到"动态内存分配"的讲解——就像有个学伴实时给你讲题。
+
+## 4.1 桌宠新玩法（v0.2.0）
+
+- **拎出来**：按住猫猫直接拖到屏幕任意位置，松手就留在那里，不再吸附边框；
+- **右键猫猫**：弹出与设置面板同款的迷你菜单，一键打开设置 / 重启 / 退出；
+- **码字计时器**：设置面板内置两个计时——自动累计你在 VSCode 里写代码的时长，也可点「开始 / 暂停 / 重置」手动掐表，数据存在本机不联网。
 
 ## 5. 第四步：打开系统开关
 
@@ -90,7 +96,7 @@ LinkList L = (LinkList)malloc(sizeof(struct Node));  // 动态内存：为结构
 **Q：想打包桌宠成 exe 分发给朋友？**
 ```powershell
 cd pet
-npx electron-builder --win
+npx electron-builder --win portable --config.win.signAndEditExecutable=false
 ```
 输出在 `pet/dist/`，便携版双击即用，无需安装。
 

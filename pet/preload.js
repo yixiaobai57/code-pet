@@ -27,5 +27,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
   setSwitch: (key, value) => ipcRenderer.send('switches:set', { key, value }),
   onSwitchState: (callback) => ipcRenderer.on('switches:state', (event, state) => callback(state)),
   closeSettings: () => ipcRenderer.send('settings:close'),
-  quitPet: () => ipcRenderer.send('settings:quit-pet')
+  quitPet: () => ipcRenderer.send('settings:quit-pet'),
+  restartPet: () => ipcRenderer.send('settings:restart-pet'),
+  showContextMenu: (x, y) => ipcRenderer.send('mascot:context-menu', { x, y }),
+  menuAction: (action) => ipcRenderer.send('menu:action', action),
+  getTimerState: () => ipcRenderer.invoke('timer:get-state'),
+  timerAction: (action) => ipcRenderer.send('timer:action', action),
+  onTimerTick: (callback) => ipcRenderer.on('timer:tick', (event, view) => callback(view))
 });

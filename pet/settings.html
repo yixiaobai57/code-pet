@@ -12,50 +12,123 @@
     }
     body {
       font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
-      background: linear-gradient(160deg, #171a24 0%, #1e2330 100%);
+      background: radial-gradient(1200px 500px at 20% -10%, rgba(106, 141, 255, 0.18), transparent 60%),
+                  radial-gradient(900px 420px at 110% 10%, rgba(138, 107, 255, 0.16), transparent 55%),
+                  linear-gradient(160deg, #141824 0%, #1c2130 100%);
       color: #e8eaf0;
       min-height: 100vh;
-      padding: 20px 24px;
+      padding: 22px 26px;
     }
-    h1 {
-      font-size: 20px;
-      font-weight: 700;
-      letter-spacing: 1px;
+
+    .head {
       display: flex;
       align-items: center;
-      gap: 10px;
-      margin-bottom: 4px;
+      gap: 14px;
+      margin-bottom: 6px;
     }
-    h1 .logo {
-      width: 34px;
-      height: 34px;
-      border-radius: 10px;
+    .head .logo {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
       background: linear-gradient(135deg, #6a8dff, #8a6bff);
-      display: inline-flex;
+      box-shadow: 0 6px 18px rgba(106, 141, 255, 0.35);
+      display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 18px;
+      font-size: 24px;
     }
-    .subtitle {
+    .head .titles h1 {
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    .head .titles .sub {
       color: #8b93a8;
       font-size: 12px;
-      margin-bottom: 22px;
-      padding-left: 44px;
+      margin-top: 2px;
     }
-    .group {
-      background: rgba(255, 255, 255, 0.045);
-      border: 1px solid rgba(255, 255, 255, 0.07);
-      border-radius: 14px;
+
+    .card {
+      background: rgba(255, 255, 255, 0.055);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
       padding: 16px 18px;
-      margin-bottom: 16px;
+      margin-top: 16px;
+      backdrop-filter: blur(6px);
     }
-    .group-title {
+    .card-title {
       font-size: 13px;
       font-weight: 600;
       color: #aab4ff;
-      margin-bottom: 12px;
       letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 12px;
     }
+
+    /* ---------- 计时器 ---------- */
+    .timer-grid {
+      display: flex;
+      gap: 12px;
+    }
+    .timer-box {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.28);
+      border-radius: 12px;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .timer-box .label {
+      font-size: 11px;
+      color: #8b93a8;
+      margin-bottom: 4px;
+    }
+    .timer-box .time {
+      font-size: 22px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 1px;
+      color: #e4e9ff;
+    }
+    .timer-box .hint {
+      font-size: 10px;
+      color: #6b7388;
+      margin-top: 4px;
+    }
+    .timer-btns {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .timer-btns button {
+      flex: 1;
+      background: linear-gradient(135deg, rgba(106, 141, 255, 0.22), rgba(138, 107, 255, 0.22));
+      border: 1px solid rgba(106, 141, 255, 0.35);
+      color: #dfe6ff;
+      border-radius: 10px;
+      padding: 8px 0;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+    .timer-btns button:hover {
+      background: linear-gradient(135deg, rgba(106, 141, 255, 0.4), rgba(138, 107, 255, 0.4));
+      transform: translateY(-1px);
+    }
+    .timer-btns button.secondary {
+      background: rgba(255, 255, 255, 0.07);
+      border-color: rgba(255, 255, 255, 0.1);
+      color: #cfd6e6;
+    }
+    .timer-btns button.danger {
+      background: rgba(255, 90, 90, 0.12);
+      border-color: rgba(255, 90, 90, 0.3);
+      color: #ffb0b0;
+    }
+
+    /* ---------- 开关 ---------- */
     .item {
       display: flex;
       align-items: center;
@@ -82,8 +155,8 @@
     }
     .switch {
       position: relative;
-      width: 46px;
-      height: 26px;
+      width: 48px;
+      height: 27px;
       flex-shrink: 0;
       cursor: pointer;
     }
@@ -96,64 +169,115 @@
       position: absolute;
       inset: 0;
       background: #3a4054;
-      border-radius: 26px;
+      border-radius: 27px;
       transition: 0.25s;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.35);
     }
     .slider::before {
       content: '';
       position: absolute;
-      width: 20px;
-      height: 20px;
+      width: 21px;
+      height: 21px;
       left: 3px;
       top: 3px;
       background: #fff;
       border-radius: 50%;
       transition: 0.25s;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.35);
     }
     .switch input:checked + .slider {
       background: linear-gradient(135deg, #6a8dff, #8a6bff);
     }
     .switch input:checked + .slider::before {
-      transform: translateX(20px);
+      transform: translateX(21px);
     }
+
+    .tip {
+      margin-top: 12px;
+      padding: 10px 14px;
+      background: rgba(255, 200, 120, 0.08);
+      border: 1px solid rgba(255, 200, 120, 0.2);
+      border-radius: 12px;
+      color: #ffd9a0;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+    .tip code {
+      background: rgba(0, 0, 0, 0.35);
+      padding: 1px 6px;
+      border-radius: 5px;
+      font-size: 11px;
+    }
+
     .footer {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: 8px;
+      margin-top: 16px;
       color: #6b7388;
       font-size: 11px;
+    }
+    .footer .btns {
+      display: flex;
+      gap: 8px;
     }
     .footer button {
       background: rgba(255, 255, 255, 0.08);
       color: #cfd6e6;
       border: none;
-      border-radius: 8px;
-      padding: 7px 14px;
+      border-radius: 9px;
+      padding: 7px 15px;
       font-size: 12px;
       cursor: pointer;
+      transition: background 0.15s;
     }
     .footer button:hover {
-      background: rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.15);
     }
-    .tip {
-      margin-top: 14px;
-      padding: 10px 14px;
-      background: rgba(255, 200, 120, 0.08);
-      border: 1px solid rgba(255, 200, 120, 0.2);
-      border-radius: 10px;
-      color: #ffd9a0;
-      font-size: 12px;
-      line-height: 1.6;
+    .footer button.primary {
+      background: linear-gradient(135deg, #6a8dff, #8a6bff);
+      color: #fff;
+      font-weight: 600;
+    }
+    .footer button.primary:hover {
+      filter: brightness(1.1);
     }
   </style>
 </head>
 <body>
-  <h1><span class="logo">🐋</span>CodePet 码宠</h1>
-  <div class="subtitle">写代码的陪伴 AI · 设置面板</div>
+  <div class="head">
+    <span class="logo">🐋</span>
+    <div class="titles">
+      <h1>CodePet 码宠</h1>
+      <div class="sub">写代码的陪伴 AI · 设置面板</div>
+    </div>
+  </div>
 
-  <div class="group">
-    <div class="group-title">⚙️ 写代码帮手（系统开关）</div>
+  <!-- 码字计时器 -->
+  <div class="card">
+    <div class="card-title">⏱️ 码字计时器</div>
+    <div class="timer-grid">
+      <div class="timer-box">
+        <div class="label">自动 · 写代码时长</div>
+        <div class="time" id="t-auto">00:00:00</div>
+        <div class="hint">检测到 VSCode 写代码时自动累计</div>
+      </div>
+      <div class="timer-box">
+        <div class="label">手动 · 本次计时</div>
+        <div class="time" id="t-manual">00:00:00</div>
+        <div class="hint" id="t-manual-hint">未开始</div>
+      </div>
+    </div>
+    <div class="timer-btns">
+      <button id="btn-start">▶ 开始</button>
+      <button class="secondary" id="btn-pause">⏸ 暂停</button>
+      <button class="danger" id="btn-reset">↺ 重置</button>
+    </div>
+  </div>
+
+  <!-- 系统开关 -->
+  <div class="card">
+    <div class="card-title">⚙️ 写代码帮手（系统开关）</div>
 
     <div class="item">
       <div class="info">
@@ -196,33 +320,49 @@
   </div>
 
   <div class="footer">
-    <span>v0.1.0 · 本地规则 MVP，不联网</span>
-    <button id="btn-close">关闭</button>
+    <span>v0.2.0 · 本地规则 MVP，不联网</span>
+    <div class="btns">
+      <button id="btn-restart">🔄 重启桌宠</button>
+      <button class="primary" id="btn-close">关闭</button>
+    </div>
   </div>
 
   <script>
-    const state = {
-      symbol: false,
-      shiftIME: false,
-      insertOff: false
+    // ---------- 计时器 ----------
+    const fmt = (ms) => {
+      const s = Math.floor(ms / 1000);
+      const hh = String(Math.floor(s / 3600)).padStart(2, '0');
+      const mm = String(Math.floor((s % 3600) / 60)).padStart(2, '0');
+      const ss = String(s % 60).padStart(2, '0');
+      return `${hh}:${mm}:${ss}`;
     };
 
-    function bind(id, key) {
-      const el = document.getElementById(id);
-      el.addEventListener('change', () => {
-        window.electronAPI.setSwitch(key, el.checked);
-      });
+    function renderTimer(view) {
+      if (!view) return;
+      document.getElementById('t-auto').textContent = fmt(view.autoActiveMs || 0);
+      document.getElementById('t-manual').textContent = fmt(view.manualMs || 0);
+      const hint = document.getElementById('t-manual-hint');
+      hint.textContent = view.manualState === 'running' ? '计时中…' : view.manualState === 'paused' ? '已暂停' : '未开始';
     }
 
+    window.electronAPI.getTimerState().then(renderTimer);
+    window.electronAPI.onTimerTick(renderTimer);
+
+    document.getElementById('btn-start').addEventListener('click', () => window.electronAPI.timerAction('start'));
+    document.getElementById('btn-pause').addEventListener('click', () => window.electronAPI.timerAction('pause'));
+    document.getElementById('btn-reset').addEventListener('click', () => window.electronAPI.timerAction('reset'));
+
+    // ---------- 开关 ----------
+    const bind = (id, key) => {
+      const el = document.getElementById(id);
+      el.addEventListener('change', () => window.electronAPI.setSwitch(key, el.checked));
+    };
+
     window.electronAPI.getSwitchState().then((s) => {
-      if (s) {
-        state.symbol = !!s.symbol;
-        state.shiftIME = !!s.shiftIME;
-        state.insertOff = !!s.insertOff;
-        document.getElementById('sw-symbol').checked = state.symbol;
-        document.getElementById('sw-shiftIME').checked = state.shiftIME;
-        document.getElementById('sw-insertOff').checked = state.insertOff;
-      }
+      if (!s) return;
+      document.getElementById('sw-symbol').checked = !!s.symbol;
+      document.getElementById('sw-shiftIME').checked = !!s.shiftIME;
+      document.getElementById('sw-insertOff').checked = !!s.insertOff;
     });
 
     window.electronAPI.onSwitchState((s) => {
@@ -236,9 +376,9 @@
     bind('sw-shiftIME', 'shiftIME');
     bind('sw-insertOff', 'insertOff');
 
-    document.getElementById('btn-close').addEventListener('click', () => {
-      window.electronAPI.closeSettings();
-    });
+    // ---------- 底部 ----------
+    document.getElementById('btn-restart').addEventListener('click', () => window.electronAPI.restartPet());
+    document.getElementById('btn-close').addEventListener('click', () => window.electronAPI.closeSettings());
   </script>
 </body>
 </html>
