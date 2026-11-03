@@ -524,7 +524,10 @@ function openContextMenu(x, y) {
   contextMenuWindow.on('closed', () => { contextMenuWindow = null; });
 
   contextMenuWindow.webContents.once('did-finish-load', () => {
-    contextMenuWindow.showInactive();
+    // 窗口可能在加载完成前被 blur 关闭（置 null），必须再判空，否则 null.showInactive 崩溃
+    if (contextMenuWindow && !contextMenuWindow.isDestroyed()) {
+      contextMenuWindow.showInactive();
+    }
   });
   // 点击空白处关闭
   contextMenuWindow.on('blur', () => {
@@ -611,9 +614,9 @@ function toggleBackground() {
   if (!backgroundWindow) createBackgroundWindow();
   isBackgroundVisible = !isBackgroundVisible;
   if (isBackgroundVisible) {
-    backgroundWindow.show();
+    if (backgroundWindow && !backgroundWindow.isDestroyed()) backgroundWindow.show();
   } else {
-    backgroundWindow.hide();
+    if (backgroundWindow && !backgroundWindow.isDestroyed()) backgroundWindow.hide();
   }
   updateTrayMenu();
 }
