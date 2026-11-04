@@ -18,10 +18,10 @@ const BUBBLE_SHOW_MS = 7000;
 const TIMER_FILE = 'code-pet-timer.json';
 const POLL_ACTIVE_GRANULARITY_MS = POLL_VSCODE_MS; // 每轮询到 active 时累计的毫秒数
 
-// 桌宠只保留猫猫（用户偏好）：去掉企鹅
+// 桌宠形象：奶蛙（用户要求从小猫替换为奶蛙）
 const MASCOT_WINDOW_CONFIGS = [
   {
-    id: 'cat',
+    id: 'frog',
     windowWidth: 140,
     windowHeight: 140,
     startOffsetX: 32

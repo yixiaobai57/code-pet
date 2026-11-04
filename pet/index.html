@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CodePet · 猫猫</title>
+  <title>CodePet · 奶蛙</title>
   <style>
     * {
       margin: 0;
@@ -62,15 +62,22 @@
 </head>
 <body>
   <div class="container">
-    <img class="mascot" id="mascot" alt="CodePet 猫猫" draggable="false">
+    <img class="mascot" id="mascot" alt="CodePet 奶蛙" draggable="false">
   </div>
 
   <script>
     const mascot = document.getElementById('mascot');
     const urlParams = new URLSearchParams(window.location.search);
-    const mascotId = urlParams.get('mascot') || 'cat';
+    const mascotId = urlParams.get('mascot') || 'frog';
 
     const MASCOT_CONFIGS = {
+      frog: {
+        runningSrc: 'assets/frog_running.webp',
+        idleSrc: 'assets/frog_idle.webp',
+        width: 120,
+        height: 120,
+        alt: 'CodePet 奶蛙'
+      },
       cat: {
         runningSrc: 'assets/running_cat.webp',
         idleSrc: 'assets/mitarashi.webp',
@@ -79,7 +86,7 @@
         alt: 'CodePet 猫猫'
       }
     };
-    const mascotConfig = MASCOT_CONFIGS[mascotId] || MASCOT_CONFIGS.cat;
+    const mascotConfig = MASCOT_CONFIGS[mascotId] || MASCOT_CONFIGS.frog;
 
     let mode = 'idle';
 
