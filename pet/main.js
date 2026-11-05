@@ -165,7 +165,8 @@ function shouldStartHidden() {
   if (process.platform === 'darwin') {
     return Boolean(app.getLoginItemSettings().wasOpenedAsHidden);
   }
-  return process.argv.includes(STARTUP_FLAG);
+  // Windows：开机自启动也要正常显示桌宠（用户反馈开机后桌面上看不到奶蛙）
+  return false;
 }
 
 function getWindowDisplay(targetWindow) {
