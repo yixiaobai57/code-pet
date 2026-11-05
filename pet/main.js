@@ -760,7 +760,7 @@ app.on('window-all-closed', (event) => {
 
 app.on('second-instance', (event, commandLine) => {
   event.preventDefault();
-  if (commandLine.includes(STARTUP_FLAG)) return;
+  // 无论是否开机自启动参数，都把已有实例的桌宠显示出来（避免重复启动时看不到奶蛙）
   if (!app.isReady()) {
     app.whenReady().then(() => { showMascotWindows(); });
     return;
