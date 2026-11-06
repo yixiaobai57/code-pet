@@ -1,154 +1,178 @@
 # 🐾 CodePet 码宠 · 写代码的陪伴 AI
 
-> **写一行，讲一行。** 一个会在你写代码时守在桌面上、帮你把每一行 C/C++ 讲明白的陪伴型 AI —— 专为考研 408 手写代码场景打造。
+> 写一行，讲一行。桌面上养一只穿西装的奶蛙，你在 VSCode 里写 C/C++ 时它守在旁边，把你刚写的那行代码用大白话讲出来。
 
-![桌宠示例](docs/screenshots/shot_cat.png)
+三个部分：
 
-## 为什么做它
+- **VSCode 插件** — 每写一行完整语句，自动在行尾插一条中文教学注释；鼠标悬停任意一行也能看到解释。纯本地规则引擎，不联网。
+- **桌面桌宠** — Electron 透明置顶小窗（140×140），会跟着鼠标转头、可以拖动、右键出菜单，收到插件推送后弹气泡讲代码。
+- **系统开关** — 三个 AHK 开关：中英文符号、Shift 切中英文、禁用 Insert 改写。
 
-备考 408 的同学常被两件事卡住：
-
-1. **代码看不懂** —— 手写链表、二叉树、递归时，每一行都要想半天"这行到底在干嘛"；
-2. **基础不牢** —— 指针、malloc、结构体、位运算这些知识点写的时候总是含糊。
-
-市面上的 AI 助手大多是"对话框问答式"：写完一整段代码再去问，学习被打断，也没人陪。CodePet 反着来——**你写一行，它讲一行**，讲解直接出现在桌宠的气泡里，像有个学伴在旁边陪你刷题。
-
-## 三合一功能
-
-| 模块 | 技术 | 作用 |
-|---|---|---|
-| 🧠 VSCode 插件 | TypeScript/JS，纯本地规则引擎 | 每写一行完整语句，自动生成中文教学注释；悬停即讲 |
-| 🐱 桌面桌宠 | Electron 透明置顶窗口（改造自开源项目） | 写代码时在桌面陪伴：活跃时奔跑、空闲时待机，气泡讲解代码 |
-| 🎛️ 系统开关 | AutoHotkey v2 | 中英文符号开关 / Shift 切换中英 / 禁用 Insert 改写，写代码少踩坑 |
-
-三者通过**本地桥接服务**（`127.0.0.1:48672`）联动，全部数据留在本机，不联网、无隐私问题。
-
-```
-┌─────────────┐  POST  ┌──────────────┐  GET   ┌──────────────┐
-│ VSCode 插件 │ ─────► │ 本地桥接服务  │ ◄───── │  桌面桌宠     │
-│ 规则引擎    │ status │ 127.0.0.1:48672│ bubble │ 奔跑/待机/气泡│
-└─────────────┘        └──────────────┘        └──────────────┘
-                              ▲ 独立运行
-                    ┌─────────┴─────────┐
-                    │ 系统开关(AHK 脚本) │
-                    └───────────────────┘
-```
-
-## 功能详解
-
-### 1. VSCode 插件：写一行，讲一行
-
-- 内置 **29 类 C 语言规则**：变量声明、函数、结构体、typedef、指针、链表（`p = p->next`）、动态内存（malloc/calloc/realloc/free）、循环、条件、switch、位运算、自增、赋值……覆盖 408 手写代码高频语法
-- 写完整语句后**自动在行尾插入中文注释**（可关闭）
-- **悬停解释**：鼠标移到任意代码行，立即弹出该行讲解
-- 命令面板：`CodePet：解释当前行` / `CodePet：开关自动注释`
-- **纯本地规则引擎**，零依赖零联网，预留大模型 API 结构可升级
-
-```c
-LinkList L = (LinkList)malloc(sizeof(struct Node));  // 动态内存：为结构体 Node 分配一块堆内存，首地址存入 L
-L->next = NULL;                                       // 指针解引用：将 L 指向节点的 next 字段置空，防止野指针
-for (int i = 0; i < n; i++) {                         // 循环：i 从 0 递增到 n-1，共执行 n 次
-```
-
-### 2. 桌面桌宠：写代码时陪你
-
-- 透明置顶、**可自由拖动**（按住猫猫就能"拎出来"放到任意位置，不再吸附屏幕边缘）
-- **只保留一只三花猫**：安静的学伴，不花哨
-- **VSCode 联动模式**：你在写代码时它**原地奔跑**，停下思考时它**待机休息**——像真的在陪你
-- **讲解气泡**：插件识别代码后，桌宠弹出气泡（内存 / 循环 / 指针等标签 + 代码行 + 大白话解释），7 秒自动消失
-- **右键猫猫**弹出迷你菜单（设置面板 / 重启 / 退出，与设置面板同款视觉）
-- 托盘菜单可切换模式、**重启桌宠**、打开设置面板
-
-![讲解气泡](docs/screenshots/shot_bubble.png)
-
-### 2.1 码字计时器（v0.2.0 新增）
-
-设置面板内置两个计时维度，纯本地统计、重启不丢：
-
-| 模式 | 说明 |
-|---|---|
-| 自动 · 写代码时长 | 检测到 VSCode 里在写代码时自动累计，打开设置面板即可看到今天写了多久 |
-| 手动 · 本次计时 | 点击「开始 / 暂停 / 重置」，自己掐表记录一次刷题/写代码的时长 |
-
-计时数据保存在本机 `code-pet-timer.json`，不联网。
-
-### 3. 系统开关：写代码少踩坑
-
-在桌宠设置面板一键启停三个 AHK 开关（每个开关也可独立用脚本运行）：
-
-| 开关 | 效果 |
-|---|---|
-| 中英文符号开关 | 中文输入法下输入 `;` `,` `()` 等也强制输出英文标点，不再有中文逗号混进代码的报错 |
-| Shift 切换中英文 | 单击 Shift 快速切中/英，长按或 Shift+字母不受影响 |
-| 禁用 Insert 改写 | 防止误按 Insert 进入改写模式，悄悄覆盖刚写的代码 |
-
-![设置面板](docs/screenshots/shot_settings.png)
-
-## 快速开始
-
-### 方式 A：直接跑桌宠（最快看到效果）
-
-```powershell
-cd pet
-npm install        # 若下载 Electron 慢，先执行:
-# $env:ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
-npm start
-```
-
-启动后桌宠默认进入 VSCode 联动模式，会在桌面上待机等待。
-
-### 方式 B：安装 VSCode 插件
-
-1. 打开 VSCode，`Ctrl+Shift+X` 搜索 `CodePet`（发布到市场后），或：
-2. 本地安装：`code --install-extension code-pet-vscode-0.1.0.vsix`（见打包说明）
-3. 打开任意 `.c` / `.cpp` 文件开始写代码，注释与桌宠气泡自动出现
-
-### 方式 C：单独使用系统开关
-
-```powershell
-# 需要先安装 AutoHotkey v2：winget install AutoHotkey.AutoHotkey
-& "$env:LOCALAPPDATA\Programs\AutoHotkey\v2\AutoHotkey64.exe" pet\switches\code-switches.ahk --symbol
-```
-
-也可以直接在桌宠设置面板里点开关，无需手动运行。
-
-## 项目结构
-
-```
-code-pet/
-├── vscode-extension/          # VSCode 插件（纯本地规则引擎）
-│   ├── extension.js           # 插件主逻辑：自动注释 / Hover / 命令 / 桥接推送
-│   ├── lib/analyzer.js        # 29 类 C 语言规则引擎（核心）
-│   ├── lib/commentator.js     # 中文教学注释生成器
-│   ├── lib/bridge.js          # 本地桥接 HTTP 服务（48672 端口）
-│   └── tests/analyzer.test.js # 44 个单元测试，全部通过
-├── pet/                       # 桌面桌宠（Electron）
-│   ├── main.js                # 主进程：联动模式 / 气泡 / 设置面板 / 重启 / 计时器 / AHK 子进程管理
-│   ├── index.html             # 桌宠角色渲染（猫猫，可拖动拎出 / 右键菜单）
-│   ├── menu.html              # 右键迷你菜单（与设置面板同视觉）
-│   ├── bubble.html            # 讲解气泡窗口
-│   ├── settings.html          # 设置面板（码字计时器 + 三开关 + 重启）
-│   └── switches/code-switches.ahk  # 系统开关脚本
-└── docs/                      # 图文教程与创作说明
-```
-
-## 技术亮点
-
-- **纯本地**：规则引擎 + 桥接服务全部跑在本机，不依赖网络与大模型，隐私友好、秒级响应
-- **可扩展**：规则引擎预留大模型 API 结构，后续接入 LLM 即可从"规则讲解"升级为"智能讲解"
-- **不重复造轮子**：桌宠基于 GitHub 开源项目改造（MIT），AHK 开关复用 AutoHotkey 生态，专注做"写一行讲一行"的差异化体验
-- **验证扎实**：规则引擎 44 个单元测试全过；桥接字段映射 bug 已修复并通过最小复现验证；桌宠渲染、活跃联动、讲解气泡、设置面板开关全部实测通过；v0.2.0 新增的重启、拖动拎出、右键菜单、码字计时器均已在真实进程上验收
-
-## 开源致谢
-
-- 桌宠改造自 [sunwood-ai-labs/desktop-pet-mitarashi](https://github.com/sunwood-ai-labs/desktop-pet-mitarashi)（MIT License）
-- 系统开关基于 [AutoHotkey v2](https://www.autohotkey.com/) 生态
-- 本项目同样以 MIT License 开源
-
-## 创作说明
-
-[📄 创作说明（300 字内）](docs/CREATION_NOTES.md) · [📖 图文教程（1000-2000 字）](docs/TUTORIAL.md)
+两边靠本机 `127.0.0.1:48672` 通信，数据不出本机。
 
 ---
 
-> 一起加油，408 考研人！ 🐾
+## 环境要求
+
+| 项 | 要求 | 说明 |
+|---|---|---|
+| 系统 | Windows 10 / 11 | 桌宠用透明置顶窗口 + AHK，macOS / Linux 未验证 |
+| Node.js | ≥ 20 | 跑桌宠用 |
+| VSCode | 1.80+ | 用插件的话必须 |
+| AutoHotkey | v2 | 只有系统开关需要，不装也能用其他功能 |
+
+---
+
+## 跑起来
+
+### 1. 先把桌宠跑起来
+
+```powershell
+cd pet
+npm install
+npm start
+```
+
+Electron 下载慢的话，先换镜像再装：
+
+```powershell
+$env:ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
+npm install
+npm start
+```
+
+起来之后屏幕右下角会出现一只奶蛙：
+
+- 按住它能拖动，松手就停
+- 鼠标在屏幕上移动，它会侧头看过去
+- 右键它出迷你菜单，托盘图标里也有设置入口
+
+### 2. 装 VSCode 插件
+
+仓库里带了打包好的插件，一条命令装上：
+
+```powershell
+code --install-extension vscode-extension/code-pet-vscode-0.1.1.vsix
+```
+
+装完在 VSCode 里按 `Ctrl+Shift+P`，执行一次 `Reload Window`。
+
+然后新建一个 `.c` 文件，敲一行：
+
+```c
+int a = 1;
+```
+
+回车之后行尾会自动出现注释：
+
+```c
+int a = 1;   // 变量声明：定义一个整型变量 a，并初始化为 1
+```
+
+鼠标停在任意一行上，也会弹出这一行的讲解。命令面板里还有 `CodePet：解释当前行` 和 `CodePet：开关自动注释`。
+
+### 3. 开系统开关（可选）
+
+先在设置面板里点，或手动装 AHK v2：
+
+```powershell
+winget install AutoHotkey.AutoHotkey
+```
+
+装完确认这个文件存在：
+
+```
+%LOCALAPPDATA%\Programs\AutoHotkey\v2\AutoHotkey64.exe
+```
+
+然后在桌宠的「设置 → 通用」里打开三个开关。首次打开时，桌宠会把脚本落盘到 `%APPDATA%\code-pet\switches\code-switches.ahk` 再调起 AHK 跑它。
+
+也可以单独跑脚本：
+
+```powershell
+& "$env:LOCALAPPDATA\Programs\AutoHotkey\v2\AutoHotkey64.exe" pet\switches\code-switches.ahk --symbol
+```
+
+---
+
+## 怎么确认它真的在跑
+
+不用猜，按下面五条走一遍：
+
+1. 桌面上有奶蛙，按住能拖，松手立刻停住，不会自己继续飘
+2. 鼠标在屏幕上画圈，它的头和眼睛跟着转
+3. VSCode 里写 `int a = 1;` 回车，行尾出现中文注释；同时桌宠弹出气泡，7 秒后自己消失
+4. 故意删掉一个分号让它编译报错 —— 桌宠捧腹大笑几秒；编译通过时它跑出去又跑回来举一面绿旗
+5. 设置面板里点开一个开关，去看 `%APPDATA%\code-pet\switches\ahk-boot.log`，最后一行时间戳是刚才那一刻，说明脚本真的起来了
+
+第 5 条是最容易被忽略的：进程活着、没报错，不代表脚本执行了；要看 boot 日志。
+
+---
+
+## 常见问题
+
+**桌宠双击没反应 / 看不见**
+程序是单实例的，已经有一个在跑时再启动会直接退出。检查托盘和任务管理器里有没有 `CodePet` 或 `electron` 进程，先关掉旧的再启动。
+
+**气泡一直不出来**
+桌宠和插件是通过本机 `48672` 端口通信的。先把 VSCode 打开并加载了插件、打开一个 `.c` / `.cpp` 文件，再启动桌宠。如果端口被旧进程占着，关掉所有 `CodePet` / `electron` 重新来。
+
+**插件装了但没注释**
+确认当前文件类型是 `.c` 或 `.cpp`（MVP 只支持 C / C++），并且执行过 `Reload Window`。
+
+**开关点了没效果**
+多半是没装 AutoHotkey v2，或者路径不在默认位置。检查 `ahk-error.log` 有没有新内容；没有 boot 日志就是脚本压根没起来。
+
+**npm install 卡在 Electron 下载**
+见上面的镜像设置，换完镜像删掉 `node_modules` 重装。
+
+---
+
+## 想做成安装版
+
+日常开发用 `npm start` 就够了。要做成双击即用的目录版：
+
+1. 把 `pet/node_modules/electron/dist` 整个复制到一个新目录
+2. 把里面的 `electron.exe` 改名成 `CodePet.exe`
+3. 删掉 `resources/default_app.asar`
+4. 用 `@electron/asar` 把 `pet` 里的运行文件打包成 `resources/app.asar`
+
+打包时只需要装这些：`main.js`、`preload.js`、`index.html`、`bubble.html`、`background.html`、`settings.html`、`menu.html`、`package.json`、`LICENSE`、`assets`、`switches`。
+
+注意两点：`switches` 目录必须进去，否则开关功能会失效；打包前先把正在跑的 `CodePet` / `electron` / `AutoHotkey64` 进程停掉，不然文件被占用会写不进去。
+
+---
+
+## 目录结构
+
+```
+code-pet/
+├── pet/                          # 桌面桌宠（Electron）
+│   ├── main.js                   # 主进程：窗口、注视轮询、气泡、设置、AHK 子进程
+│   ├── preload.js                # 渲染层与主进程的桥
+│   ├── index.html                # 桌宠本体（拖动、歪头、道具动画）
+│   ├── bubble.html               # 讲解气泡
+│   ├── settings.html             # 设置面板
+│   ├── menu.html                 # 右键迷你菜单
+│   ├── assets/                   # 奶蛙贴图与图标
+│   └── switches/code-switches.ahk # 三个系统开关
+├── vscode-extension/             # VSCode 插件
+│   ├── extension.js              # 自动注释 / 悬停 / 命令 / 推送
+│   ├── lib/analyzer.js           # C 语言规则引擎
+│   ├── lib/commentator.js        # 中文教学注释生成
+│   ├── lib/bridge.js             # 本机 HTTP 桥接
+│   └── code-pet-vscode-0.1.1.vsix # 打包好的插件
+└── docs/                         # 图文教程与创作说明
+```
+
+---
+
+## 致谢与许可
+
+- 桌宠窗口形态参考了开源项目 [sunwood-ai-labs/desktop-pet-mitarashi](https://github.com/sunwood-ai-labs/desktop-pet-mitarashi)（MIT）
+- 系统开关基于 [AutoHotkey v2](https://www.autohotkey.com/)
+- 本项目以 MIT License 开源
+
+---
+
+> 写不明白的那一行，让它替你讲。
